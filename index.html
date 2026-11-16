@@ -1088,7 +1088,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='70 · 6 جمادى الآخرة 1448 هـ 18:02';
+const BUILD='79 · 7 جمادى الآخرة 1448 هـ 02:43';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -1961,7 +1961,7 @@ function cloudLogout(){
     if(DB.acct&&!DB.owner)DB.owner=DB.acct.uid;
     if(wipe){/* كل شي تأكدنا إنه في الحساب: نمسحه من الجهاز بس. شغل أي حساب ثاني محفوظ جانبًا على الجهاز ما يتأثر */
       const keep=DB.settings||{},nb=blank();['theme','fz','mode'].forEach(k=>{if(keep[k]!=null)nb.settings[k]=keep[k]});
-      DB.visits={};DB.synced={};DB.stamps={};DB.purged={};DB.syncBak=[];DB.settings=nb.settings;DB.owner=null;DB.lastK=null;DB.sub=null;
+      DB.visits={};DB.synced={};DB.stamps={};DB.purged={};DB.syncBak=[];DB.settings=nb.settings;DB.owner=null;DB.lastK=null;DB.sub=null;try{localStorage.removeItem('tq_ck');localStorage.removeItem('tq_ckAt')}catch(e){}
       try{localStorage.removeItem('taqweem_view')}catch(e){}}
     else if(DB.acct&&DB.acct.k)DB.lastK={uid:DB.acct.uid,k:DB.acct.k,u:DB.acct.u};
     DB.acct=null;DB.sub=null;cloudTok=null;saveNow();try{await idbPut(JSON.stringify(DB))}catch(e){}
@@ -2229,7 +2229,7 @@ function noteBox(){if(!acct())return toast('سجّل دخول أول');
 
 /* ---------- رسالة منشئ التطبيق للكل ---------- */
 let newsAt=0;
-async function newsFetch(){if(!acct()||navigator.onLine===false||Date.now()-newsAt<5*60e3)return;newsAt=Date.now();supFetch();moveFetch();
+async function newsFetch(){if(!acct()||navigator.onLine===false||Date.now()-newsAt<5*60e3)return;newsAt=Date.now();supFetch();moveFetch();ckFetch();
   try{const d=await fsReq('GET','/cfg/news');const o=d?UF(d.fields):{t:'',ts:0};const was=JSON.stringify(DB.settings.news||null);DB.settings.news={t:String(o.t||''),ts:+o.ts||0};
     if(JSON.stringify(DB.settings.news)!==was){saveNow();if(S.v==='home')render();}}catch(e){}}
 function newsBanner(){const n=DB.settings.news;if(!n||!n.t||(DB.settings.newsSeen||0)>=n.ts)return '';
@@ -2292,7 +2292,7 @@ let inRepBusy=false;
 /* ملخص حالة الجهاز (أعداد بس، بدون أي محتوى) يوصل للوحة مع حالة التسليم، عشان نعرف لو شغل أحد مو ظاهر عنده */
 function devDiag(){try{const st={};Object.keys(DB.stash||{}).forEach(k=>{const x=DB.stash[k];st[k==='anon'?'anon':k.slice(0,6)]=Object.keys((x&&x.visits)||{}).length});
   const vs=Object.values(DB.visits||{});let ev=0;vs.forEach(v=>Object.keys(v.cards||{}).forEach(c=>(v.cards[c]||[]).forEach(i=>{try{if(insHasData(c,i))ev++}catch(e){}})));
-  return {n:vs.filter(v=>!v.deleted).length,e:ev,s:st,o:String(DB.owner||'').slice(0,6),u:String((DB.acct&&DB.acct.uid)||'')}}catch(e){return {}}}
+  return {n:vs.filter(v=>!v.deleted).length,e:ev,s:st,o:String(DB.owner||'').slice(0,6),u:String((DB.acct&&DB.acct.uid)||''),ck:ckHas()?1:0}}catch(e){return {}}}
 function inReport(err){if(!acct()||(DB.sub&&DB.sub.moved))return;const now=Date.now(),dg=devDiag(),k=(err||'ok')+'|'+JSON.stringify(dg);
   if(DB.settings.inRepK===k&&now-(DB.settings.inRepAt||0)<(err?30:360)*60e3)return;if(inRepBusy)return;inRepBusy=true;
   const cur={m:err?String(err).slice(0,200):'',v:(typeof BUILD!=='undefined'?BUILD:''),d:devLabel()};
@@ -2381,11 +2381,21 @@ function legacyRescue(){try{if(!DB||!acct()||!isLegacyAcct()||!DB.stash)return 0
     Object.values(x.visits).forEach(v=>{const cur=DB.visits[v.id];if(!cur){DB.visits[v.id]=v;n++}else if((v.updated||0)>(cur.updated||0)&&!cur.deleted){DB.visits[v.id]=v;n++}});x.rescued=Date.now();});
   if(n){saveNow();try{cloudSoon(1500)}catch(e){}render();toast('رجعت '+n+' زيارة من شغلك القديم ✓');}return n}catch(e){return 0}}
 setTimeout(legacyRescue,2500);
+/* التطبيق القديم وقف: الشغل اللي انعمل على هذا الجهاز قبل ما يدخل أحد (anon) ينضم لصاحب الجهاز اللي دخل،
+   عشان ما يضيع لما يحذف التطبيق القديم. ما ينحذف من الجهاز، ونحفظ علامة إنه انضم */
+function anonRescue(){try{if(!DB||!acct()||!DB.stash)return 0;const x=DB.stash.anon;if(!x||!x.visits||x.rescued)return 0;let n=0;
+  Object.values(x.visits).forEach(v=>{if(!v||!v.id||v.g)return;const cur=DB.visits[v.id];if(!cur){DB.visits[v.id]=v;n++}else if((v.updated||0)>(cur.updated||0)&&!cur.deleted){DB.visits[v.id]=v;n++}});
+  x.rescued=Date.now();saveNow();if(n)try{render();toast('انضافت '+n+' زيارة كانت على جهازك ✓')}catch(e){}return n}catch(e){return 0}}
 
 /* ---------- الانتقال للعنوان الجديد (يتشغّل من اللوحة) ----------
    يطلع للمشترك على العنوان القديم بس، وبعد ما يتأكد من السيرفر إن كل شغله محفوظ في حسابه. ما يقفل شي ولا يمسح شي:
    يقدر يكمل هنا، وشغله يتزامن عادي، ولما ينقل يدخل بنفس رقمه وينزل له كل شي */
 let moveOk=false,moveChk=0;
+/* مفتاح المحتوى: ينزل من السيرفر للمشترك بس وينحفظ على الجهاز، عشان البطاقات تنفتح فيه بدون نت.
+   (تجهيز لتشفير المحتوى: في هذي النسخة نحفظه بس، والتشفير يتفعّل بعد ما كل الأجهزة يصير عندها المفتاح) */
+function ckHas(){try{return !!localStorage.getItem('tq_ck')}catch(e){return false}}
+async function ckFetch(){try{if(!acct()||navigator.onLine===false)return false;if(ckHas()&&Date.now()-(+localStorage.getItem('tq_ckAt')||0)<864e5)return true;
+  const d=await fsReq('GET','/cfg/content');const o=d?UF(d.fields):{};if(o.k&&String(o.k).length>=40){localStorage.setItem('tq_ck',String(o.k));localStorage.setItem('tq_ckAt',String(Date.now()));return true}}catch(e){}return ckHas()}
 async function moveFetch(){try{if(APP_TARGET!=='old'||!acct())return;const d=await fsReq('GET','/cfg/move');const o=d?UF(d.fields):{};
     const was=JSON.stringify(DB.settings.move||null);DB.settings.move=o.on&&o.url?{url:String(o.url)}:null;if(JSON.stringify(DB.settings.move)!==was)saveNow();
     if(DB.settings.move&&!moveOk&&Date.now()-moveChk>60e3&&cloudState==='ok'){moveChk=Date.now();const v=await verifySynced();moveOk=v.ok;}
@@ -2394,16 +2404,38 @@ function moveBanner(){const m=DB.settings&&DB.settings.move;if(APP_TARGET!=='old
   if(!moveOk)return '<div class="news"><div class="grow"><small>تحديث مهم</small><p>التطبيق ينتقل لعنوان جديد أكثر أمانًا. لحظة أتأكد إن كل شغلك محفوظ في حسابك… (يحتاج نت)</p></div></div>';
   return '<div class="news renew"><div class="grow"><small>تحديث مهم · شغلك كله محفوظ في حسابك ✓</small><p>التطبيق انتقل لعنوان جديد أكثر أمانًا. اضغط الزر، وثبّت التطبيق الجديد، وادخل بنفس رقم جوالك والرقم السري. كل زياراتك وتقييماتك تنزل لك فيه.</p></div><a class="btn primary sm" href="'+esc(m.url)+'start.html" target="_blank" rel="noopener">افتح التطبيق الجديد</a></div>';}
 
-/* ---------- إيقاف العنوان القديم: يحوّل للجديد لحاله بدون ما يسأل ----------
-   اللي مو داخل: يتحوّل على طول. اللي داخل: يرفع شغله ويتأكد من السيرفر إنه كامل، وبعدها يتحوّل.
-   لو ما فيه نت وهو داخل، يبقى هنا لين يرجع النت عشان ما يضيع شي */
-const NEW_HOME='https://taqweem-app.github.io/';
+/* ---------- إيقاف العنوان القديم: شاشة تقفل التطبيق القديم وتقول له يحمّل الجديد ويحذف القديم ----------
+   ما نحوّله تلقائي عشان ما يصير عنده أيقونتين بنفس الشكل ويتلخبط.
+   اللي داخل: يرفع شغله ويتأكد من السيرفر أول، وبعدها يظهر زر التحميل. بدون نت: يطلب منه يشغّل النت */
+const NEW_HOME='https://taqweem-app.github.io/',NEW_START=NEW_HOME+'start.html';
 let fwdBusy=false;
+function fwdScreen(st){window.__fwdSt=st;let w=document.getElementById('fwdScr');
+  if(!w){w=document.createElement('div');w.id='fwdScr';w.setAttribute('style','position:fixed;inset:0;z-index:99999;background:#0f3d3e;color:#fff;display:flex;align-items:center;justify-content:center;padding:20px;font-family:inherit;direction:rtl;text-align:center;overflow:auto');document.body.appendChild(w);}
+  const ready=st==='ready';
+  const top=st==='saving'?'<p style="font-size:18px;margin:14px 0">لحظة… نحفظ شغلك في حسابك ⏳</p>'
+    :st==='offline'?'<p style="font-size:18px;margin:14px 0;color:#ffd27a">شغّل النت عشان نحفظ شغلك أول</p>'
+    :st==='fail'?'<p style="font-size:18px;margin:14px 0;color:#ffd27a">ما قدرنا نحفظ شغلك الحين. تأكد من النت، ونعيد المحاولة لحالنا</p>'
+    :(acct()?'<p style="font-size:16px;margin:10px 0;color:#9fe3c5">شغلك كله محفوظ في حسابك ✓</p>':'');
+  w.innerHTML='<div style="max-width:420px;width:100%"><div style="font-size:50px">📲</div>'
+   +'<h2 style="font-size:25px;margin:8px 0">تم تحديث التطبيق</h2>'
+   +'<p style="font-size:18px;line-height:1.9;margin:6px 0">لتجربة استخدام أفضل تم تحديث التطبيق، ويرجى تحميل التطبيق مرة أخرى من خلال الرابط التالي:</p>'+top
+   +(ready?'<div dir="ltr" style="font-size:19px;font-weight:700;user-select:all;-webkit-user-select:all;background:#fff;color:#0f3d3e;padding:12px;border-radius:12px;margin:12px 0">'+NEW_HOME+'</div>'
+     +'<button onclick="fwdCopy(this)" style="display:block;width:100%;background:#f5b942;color:#1b1b1b;font-size:22px;font-weight:700;padding:15px;border:0;border-radius:14px;font-family:inherit">انسخ الرابط</button>'
+     +'<div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px;font-size:17px;line-height:1.9;margin-top:14px;text-align:right">'
+     +'١- انسخ الرابط.<br>٢- افتح متصفح <b>سفاري</b> إذا جوالك آيفون، أو <b>قوقل كروم</b> إذا جوالك أندرويد.<br>٣- الصق الرابط وافتحه، وثبّت التطبيق وادخل بنفس رقم جوالك وكلمة المرور.<br>٤- احذف أيقونة هذا التطبيق القديم.</div>':'')
+   +'</div>';}
+function fwdCopy(b){const done=()=>{b.textContent='تم النسخ ✓ الصقه في المتصفح'};
+  const old=()=>{try{const t=document.createElement('textarea');t.value=NEW_HOME;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:0;opacity:0';document.body.appendChild(t);t.select();t.setSelectionRange(0,999);const ok=document.execCommand('copy');t.remove();if(ok)done();}catch(e){}};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(NEW_HOME).then(done,old);else old();}catch(e){old();}}
 async function forwardNew(){if(APP_TARGET!=='old'||fwdBusy||location.protocol==='file:'&&!window.__testFwd)return;
-  if(!DB)return;if(!acct()){window.__fwdTo=NEW_HOME;if(!window.__testFwd)location.replace(NEW_HOME);return;}
-  if(navigator.onLine===false)return;fwdBusy=true;
+  if(!DB||!document.body||window.__testNoFwd===1)return;if(window.__fwdSt==='ready')return;
+  if(!acct()){/* لو فيه شغل على الجهاز ما ارتفع لأي حساب (من قبل الدخول الإجباري) نخليه يدخل أول عشان يرتفع */
+    const SY=DB.synced||{},loose=Object.keys(DB.visits||{}).filter(id=>!SY[id]&&!(DB.visits[id]||{}).g).length;
+    if(loose){window.__fwdSt='login';const w=document.getElementById('fwdScr');if(w)w.remove();return;}
+    fwdScreen('ready');return;}
+  if(navigator.onLine===false){fwdScreen('offline');return;}fwdBusy=true;fwdScreen('saving');anonRescue();
   try{for(let k=0;k<40&&cloudBusy;k++)await new Promise(r=>setTimeout(r,500));await cloudSync(true);
-    if(cloudState==='ok'){const v=await verifySynced();if(v.ok){saveNow();window.__fwdTo=NEW_HOME;if(!window.__testFwd)location.replace(NEW_HOME);}}}
-  catch(e){}finally{fwdBusy=false;}}
-if(APP_TARGET==='old'){setTimeout(forwardNew,1500);setInterval(forwardNew,60e3);window.addEventListener('online',()=>setTimeout(forwardNew,2000));}
+    if(cloudState==='ok'){const v=await verifySynced();if(v.ok){saveNow();fwdScreen('ready');return;}}fwdScreen('fail');}
+  catch(e){fwdScreen('fail');}finally{fwdBusy=false;}}
+if(APP_TARGET==='old'){setTimeout(forwardNew,800);setInterval(forwardNew,30e3);window.addEventListener('online',()=>setTimeout(forwardNew,2000));}
 </script></body></html>
