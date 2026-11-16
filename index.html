@@ -1088,7 +1088,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='69 · 6 جمادى الآخرة 1448 هـ 17:55';
+const BUILD='70 · 6 جمادى الآخرة 1448 هـ 18:02';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -2393,4 +2393,17 @@ async function moveFetch(){try{if(APP_TARGET!=='old'||!acct())return;const d=awa
 function moveBanner(){const m=DB.settings&&DB.settings.move;if(APP_TARGET!=='old'||!m||!acct())return '';
   if(!moveOk)return '<div class="news"><div class="grow"><small>تحديث مهم</small><p>التطبيق ينتقل لعنوان جديد أكثر أمانًا. لحظة أتأكد إن كل شغلك محفوظ في حسابك… (يحتاج نت)</p></div></div>';
   return '<div class="news renew"><div class="grow"><small>تحديث مهم · شغلك كله محفوظ في حسابك ✓</small><p>التطبيق انتقل لعنوان جديد أكثر أمانًا. اضغط الزر، وثبّت التطبيق الجديد، وادخل بنفس رقم جوالك والرقم السري. كل زياراتك وتقييماتك تنزل لك فيه.</p></div><a class="btn primary sm" href="'+esc(m.url)+'start.html" target="_blank" rel="noopener">افتح التطبيق الجديد</a></div>';}
+
+/* ---------- إيقاف العنوان القديم: يحوّل للجديد لحاله بدون ما يسأل ----------
+   اللي مو داخل: يتحوّل على طول. اللي داخل: يرفع شغله ويتأكد من السيرفر إنه كامل، وبعدها يتحوّل.
+   لو ما فيه نت وهو داخل، يبقى هنا لين يرجع النت عشان ما يضيع شي */
+const NEW_HOME='https://taqweem-app.github.io/';
+let fwdBusy=false;
+async function forwardNew(){if(APP_TARGET!=='old'||fwdBusy||location.protocol==='file:'&&!window.__testFwd)return;
+  if(!DB)return;if(!acct()){window.__fwdTo=NEW_HOME;if(!window.__testFwd)location.replace(NEW_HOME);return;}
+  if(navigator.onLine===false)return;fwdBusy=true;
+  try{for(let k=0;k<40&&cloudBusy;k++)await new Promise(r=>setTimeout(r,500));await cloudSync(true);
+    if(cloudState==='ok'){const v=await verifySynced();if(v.ok){saveNow();window.__fwdTo=NEW_HOME;if(!window.__testFwd)location.replace(NEW_HOME);}}}
+  catch(e){}finally{fwdBusy=false;}}
+if(APP_TARGET==='old'){setTimeout(forwardNew,1500);setInterval(forwardNew,60e3);window.addEventListener('online',()=>setTimeout(forwardNew,2000));}
 </script></body></html>
