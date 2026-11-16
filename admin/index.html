@@ -139,7 +139,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--mut)}
 const FB={key:'AIzaSyBGdWVd1Xb3DEJzwiDmtG8W7-1gYdY7tXI',project:'taqweem-7050b',domain:'taqweem.app'};
 const OLD_URL='https://hos0090.github.io/taqweem/',NEW_URL='https://taqweem-app.github.io/',APP_PIN='554894';let MOVE=null;
 /* رابط التطبيق في رسائل الترحيب: الجديد بعد ما تشغّل الانتقال، والوالد يبقى على القديم */
-const appLink=a=>(MOVE&&MOVE.on&&!(a&&a.email==='ali@taqweem.app'))?NEW_URL:OLD_URL+'#k='+APP_PIN;
+const appLink=a=>(MOVE&&MOVE.on)?NEW_URL:OLD_URL+'#k='+APP_PIN;
 const FS=()=>'https://firestore.googleapis.com/v1/projects/'+FB.project+'/databases/(default)/documents';
 const $=s=>document.querySelector(s),esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const DAY=864e5;let tok=null,ADM=null,ACC=[],FIL='all',Q='',PK=null,SK=null,PRICE=600;
@@ -178,8 +178,8 @@ async function idTok(force){if(!force&&tok&&tok.exp>Date.now())return tok.t;cons
   ADM.rt=j.refresh_token||rt;lsSet('tq_admin',JSON.stringify(ADM));tok={t:j.id_token,exp:Date.now()+(+j.expires_in||3600)*1000-60e3};return tok.t}
 /* ---------- الانتقال للعنوان الجديد ---------- */
 function moveCard(){const on=!!(MOVE&&MOVE.on);
-  return '<div class="card"><div class="lhead"><h2>العنوان الجديد</h2>'+ib(on?'out':'send',on?'وقّف الانتقال':'شغّل الانتقال','vMove()')+'</div><p class="hint" style="margin:0">'+(on?'<b>شغّال:</b> كل مشترك (غير الوالد) يطلع له في التطبيق القديم زر «افتح التطبيق الجديد»، بعد ما يتأكد إن كل شغله محفوظ في حسابه. ورسائل الترحيب صارت بالرابط الجديد.':'التطبيق الجديد: <b dir="ltr">'+NEW_URL+'</b>. لما تشغّل الانتقال، يطلع للمشتركين زر ينقلهم له. الوالد يبقى على القديم.')+'</p></div>'}
-async function vMove(){const on=!(MOVE&&MOVE.on);if(!await uiConfirm(on?'تشغّل الانتقال للعنوان الجديد؟\n\nيطلع للمشتركين (غير الوالد) زر «افتح التطبيق الجديد» بعد ما يتأكد التطبيق إن كل شغلهم محفوظ. ما ينقفل عليهم شي.':'توقّف الانتقال؟ الزر يختفي من عند المشتركين.'))return;
+  return '<div class="card"><div class="lhead"><h2>العنوان الجديد</h2>'+ib(on?'out':'send',on?'وقّف الانتقال':'شغّل الانتقال','vMove()')+'</div><p class="hint" style="margin:0">'+(on?'<b>شغّال:</b> كل مشترك (والوالد معهم) يطلع له في التطبيق القديم زر «افتح التطبيق الجديد»، بعد ما يتأكد إن كل شغله محفوظ في حسابه. ورسائل الترحيب صارت بالرابط الجديد.':'التطبيق الجديد: <b dir="ltr">'+NEW_URL+'</b>. لما تشغّل الانتقال، يطلع للمشتركين كلهم (والوالد معهم) زر ينقلهم له.')+'</p></div>'}
+async function vMove(){const on=!(MOVE&&MOVE.on);if(!await uiConfirm(on?'تشغّل الانتقال للعنوان الجديد؟\n\nيطلع للمشتركين كلهم (والوالد معهم) زر «افتح التطبيق الجديد» بعد ما يتأكد التطبيق إن كل شغلهم محفوظ. ما ينقفل عليهم شي.':'توقّف الانتقال؟ الزر يختفي من عند المشتركين.'))return;
   try{await fs('PATCH','/cfg/move',F({on,url:NEW_URL,ts:Date.now()}));MOVE={on,url:NEW_URL};view();uiAlert(on?'شغّال ✓':'وقف ✓')}catch(e){uiAlert(errTxt(e))}}
 /* ---------- النسخة الاحتياطية: تنزّل كل قاعدة البيانات في ملف عندك، والتقييمات تبقى مشفّرة مثل ما هي ---------- */
 const BK_K='tq_bkAt';
@@ -365,7 +365,7 @@ function showPw(i){const a=ACC[i];askPhrase(async()=>{modal('<h2>'+esc(a.name||a
     shareTo(a,pw,false)}catch(e){modal('<p class="err">'+esc(errTxt(e))+'</p><button class="btn" onclick="closeM()">تم</button>')}})}
 /* ---------- رسالة الدخول ---------- */
 const loginOf=a=>a.email==='ali@taqweem.app'&&a.phone?a.phone:a.user;
-function msgFor(a,pass){return 'السلام عليكم أستاذ '+(a.name||'')+'\nهذا رابط تطبيق «بطاقات التقويم»:\n'+appLink(a)+'\n\nاسم الدخول: '+loginOf(a)+'\nالرقم السري: '+(pass||'(اللي عندك)')+'\n\n'+(a.free?'اشتراكك مفعّل.':a.plan==='trial'?'اشتراكك: تجربة مجانية لين '+hdate(a.exp)+'.':'اشتراكك سنوي لين '+hdate(a.exp)+'.')+'\n\nعشان يصير تطبيق على جوالك، وشرح الاستخدام بالفيديو:\n'+((MOVE&&MOVE.on&&a.email!=='ali@taqweem.app')?NEW_URL:OLD_URL)+'start.html\n\nوجدول زيارتك صوّره وأرسله لي هنا، وتنزل حصصك في التطبيق كاملة.\nإذا طلب رقم فتح التطبيق: '+APP_PIN}
+function msgFor(a,pass){return 'السلام عليكم أستاذ '+(a.name||'')+'\nهذا رابط تطبيق «بطاقات التقويم»:\n'+appLink(a)+'\n\nاسم الدخول: '+loginOf(a)+'\nالرقم السري: '+(pass||'(اللي عندك)')+'\n\n'+(a.free?'اشتراكك مفعّل.':a.plan==='trial'?'اشتراكك: تجربة مجانية لين '+hdate(a.exp)+'.':'اشتراكك سنوي لين '+hdate(a.exp)+'.')+'\n\nعشان يصير تطبيق على جوالك، وشرح الاستخدام بالفيديو:\n'+((MOVE&&MOVE.on)?NEW_URL:OLD_URL)+'start.html\n\nوجدول زيارتك صوّره وأرسله لي هنا، وتنزل حصصك في التطبيق كاملة.\nإذا طلب رقم فتح التطبيق: '+APP_PIN}
 /* حساب الوالد كان مسجّل عند قوقل بإيميل فيه غلطة، فنسوي له دخول صحيح برقم سري جديد مثل الباقين */
 async function aliPw(i){const a=ACC[i];if(!await uiConfirm('أسوي رقم سري جديد لـ «'+(a.name||a.user)+'»؟\nيدخل فيه برقم جواله '+(a.phone||'')+'، وشغله اللي على جهازه يبقى مثل ما هو.'))return;
   const pw=genPass();try{await post('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+FB.key,{email:a.email,password:pw,returnSecureToken:false})}

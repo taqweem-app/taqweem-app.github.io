@@ -1088,7 +1088,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='67 · 6 جمادى الآخرة 1448 هـ 17:45';
+const BUILD='69 · 6 جمادى الآخرة 1448 هـ 17:55';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -2386,11 +2386,11 @@ setTimeout(legacyRescue,2500);
    يطلع للمشترك على العنوان القديم بس، وبعد ما يتأكد من السيرفر إن كل شغله محفوظ في حسابه. ما يقفل شي ولا يمسح شي:
    يقدر يكمل هنا، وشغله يتزامن عادي، ولما ينقل يدخل بنفس رقمه وينزل له كل شي */
 let moveOk=false,moveChk=0;
-async function moveFetch(){try{if(APP_TARGET!=='old'||!acct()||isLegacyAcct())return;const d=await fsReq('GET','/cfg/move');const o=d?UF(d.fields):{};
+async function moveFetch(){try{if(APP_TARGET!=='old'||!acct())return;const d=await fsReq('GET','/cfg/move');const o=d?UF(d.fields):{};
     const was=JSON.stringify(DB.settings.move||null);DB.settings.move=o.on&&o.url?{url:String(o.url)}:null;if(JSON.stringify(DB.settings.move)!==was)saveNow();
     if(DB.settings.move&&!moveOk&&Date.now()-moveChk>60e3&&cloudState==='ok'){moveChk=Date.now();const v=await verifySynced();moveOk=v.ok;}
     if(S.v==='home')render();}catch(e){}}
-function moveBanner(){const m=DB.settings&&DB.settings.move;if(APP_TARGET!=='old'||!m||!acct()||isLegacyAcct())return '';
+function moveBanner(){const m=DB.settings&&DB.settings.move;if(APP_TARGET!=='old'||!m||!acct())return '';
   if(!moveOk)return '<div class="news"><div class="grow"><small>تحديث مهم</small><p>التطبيق ينتقل لعنوان جديد أكثر أمانًا. لحظة أتأكد إن كل شغلك محفوظ في حسابك… (يحتاج نت)</p></div></div>';
   return '<div class="news renew"><div class="grow"><small>تحديث مهم · شغلك كله محفوظ في حسابك ✓</small><p>التطبيق انتقل لعنوان جديد أكثر أمانًا. اضغط الزر، وثبّت التطبيق الجديد، وادخل بنفس رقم جوالك والرقم السري. كل زياراتك وتقييماتك تنزل لك فيه.</p></div><a class="btn primary sm" href="'+esc(m.url)+'start.html" target="_blank" rel="noopener">افتح التطبيق الجديد</a></div>';}
 </script></body></html>
