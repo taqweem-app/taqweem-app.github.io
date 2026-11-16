@@ -434,7 +434,7 @@ function dlv(e){const a=ACC.find(x=>x.email===e);if(!a)return {k:'none',s:'بد�
   if(er&&er.m&&at>=p)return {k:'err',s:'✗ تعذّر',t:'تعذّر التنزيل: '+er.m+(er.d?' · الجهاز: '+er.d:'')+' · '+when(at)};
   const st=status(a)[0];if(st==='exp')return {k:'err',s:'✗ اشتراكه منتهي',t:'اشتراكه منتهي، فالحصص ما تنزل لين يتجدد'};if(st==='off')return {k:'err',s:'✗ موقوف',t:'حسابه موقوف، فالحصص ما تنزل'};
   return {k:'wait',s:'⏳ انتشرت',t:'انتشرت '+when(p)+' وما فتح التطبيق بعدها'+(at?' · آخر مرة فتح التطبيق '+agoTxt(at):' · ما فتح التطبيق أبد')}}
-function dlvChip(e){const d=dlv(e);return ' <b class="dl-'+d.k+'" title="'+esc(d.t)+'" onclick="event.stopPropagation();uiAlert(\''+esc(nm(e)).replace(/'/g,'')+'\\n'+esc(d.t).replace(/'/g,'')+'\')">'+d.s+'</b>'}
+function dlvChip(e){const d=dlv(e);return ' <b class="dl-'+d.k+'" title="'+esc(d.t)+'" data-n="'+esc(nm(e))+'" onclick="event.stopPropagation();uiAlert(this.dataset.n+String.fromCharCode(10)+this.title)">'+d.s+'</b>'}
 async function refreshAcc(){try{const out=[];let pt='';do{const j=await fs('GET','/accounts?pageSize=300'+(pt?'&pageToken='+encodeURIComponent(pt):''));((j&&j.documents)||[]).forEach(d=>{const o=U(d.fields);o.email=decodeURIComponent(d.name.split('/').pop());out.push(o)});pt=j&&j.nextPageToken}while(pt);
   out.forEach(a=>{try{a.pays=JSON.parse(a.payLog||'[]')}catch(e){a.pays=[]}});ACC=out.sort((a,b)=>(b.created||0)-(a.created||0));}catch(e){uiAlert(errTxt(e))}if(VI>=0)vSch();else vList()}
 function vList(){TAB='sch';const all=SD.visits.map((v,i)=>[v,i]).sort((a,b)=>String(vDates(b[0])[0]||'9').localeCompare(String(vDates(a[0])[0]||'9')));
