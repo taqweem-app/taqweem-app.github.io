@@ -1088,7 +1088,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='66 · 6 جمادى الآخرة 1448 هـ 17:33';
+const BUILD='67 · 6 جمادى الآخرة 1448 هـ 17:45';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -2292,7 +2292,7 @@ let inRepBusy=false;
 /* ملخص حالة الجهاز (أعداد بس، بدون أي محتوى) يوصل للوحة مع حالة التسليم، عشان نعرف لو شغل أحد مو ظاهر عنده */
 function devDiag(){try{const st={};Object.keys(DB.stash||{}).forEach(k=>{const x=DB.stash[k];st[k==='anon'?'anon':k.slice(0,6)]=Object.keys((x&&x.visits)||{}).length});
   const vs=Object.values(DB.visits||{});let ev=0;vs.forEach(v=>Object.keys(v.cards||{}).forEach(c=>(v.cards[c]||[]).forEach(i=>{try{if(insHasData(c,i))ev++}catch(e){}})));
-  return {n:vs.filter(v=>!v.deleted).length,e:ev,s:st,o:String(DB.owner||'').slice(0,6)}}catch(e){return {}}}
+  return {n:vs.filter(v=>!v.deleted).length,e:ev,s:st,o:String(DB.owner||'').slice(0,6),u:String((DB.acct&&DB.acct.uid)||'')}}catch(e){return {}}}
 function inReport(err){if(!acct()||(DB.sub&&DB.sub.moved))return;const now=Date.now(),dg=devDiag(),k=(err||'ok')+'|'+JSON.stringify(dg);
   if(DB.settings.inRepK===k&&now-(DB.settings.inRepAt||0)<(err?30:360)*60e3)return;if(inRepBusy)return;inRepBusy=true;
   const cur={m:err?String(err).slice(0,200):'',v:(typeof BUILD!=='undefined'?BUILD:''),d:devLabel()};

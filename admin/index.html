@@ -188,8 +188,12 @@ function bkCard(){const at=+lsGet(BK_K)||0,old=!at||Date.now()-at>7*864e5;
 async function bkList(path){const out=[];let pt='';do{const j=await fs('GET',path+(path.indexOf('?')<0?'?':'&')+'pageSize=300'+(pt?'&pageToken='+encodeURIComponent(pt):''));((j&&j.documents)||[]).forEach(d=>out.push(d));pt=j&&j.nextPageToken}while(pt);return out}
 async function bkRun(){const m=$('#bkM'),say=t=>{if(m)m.textContent=t};try{say('لحظة، أجمع البيانات…');const all={};
     for(const c of ['accounts','inbox','cfg','pub','notes','vault','keys','admin'])all[c]=await bkList('/'+c);
-    const users=await bkList('/users?showMissing=true');let n=0;all.users={};
-    for(const u of users){const uid=u.name.split('/').pop();all.users[uid]={};for(const sc of ['meta','visits','parts']){all.users[uid][sc]=await bkList('/users/'+uid+'/'+sc);n+=all.users[uid][sc].length}say('لحظة… '+n+' ملف')}
+    /* أرقام حسابات المشتركين: تجي من ملخص أجهزتهم في الحسابات، ومعها الحسابات المعروفة من قبل */
+    const U=new Set(['GdPKDYtyyUaVkAJcIqCrDPNtvpc2','aCa260SmGhd22Ed2VWoi3rcSPtz2','jkClGOVPp6NO8HKiiPimF661oji1','pm5Rs6PEHSRSKsZdWREQ96aGHQX2','xO7K8LoGcTeG1Kva0bnfASC56VL2']);
+    ACC.forEach(a=>{try{const j=JSON.parse(a.inErr||'{}');if(j.u)U.add(j.u);Object.values(j.devs||{}).forEach(d=>{if(d.u)U.add(d.u)})}catch(e){}});
+    try{(JSON.parse(lsGet('tq_uids')||'[]')).forEach(x=>U.add(x))}catch(e){}lsSet('tq_uids',JSON.stringify([...U]));
+    let n=0;all.users={};const users=[...U];
+    for(const uid of users){all.users[uid]={};for(const sc of ['meta','visits','parts']){all.users[uid][sc]=await bkList('/users/'+uid+'/'+sc);n+=all.users[uid][sc].length}say('لحظة… '+n+' ملف')}
     const blob=new Blob([JSON.stringify({app:'taqweem',at:Date.now(),db:all})],{type:'application/json'}),a=document.createElement('a');
     a.href=URL.createObjectURL(blob);a.download='نسخة-احتياطية-التقويم-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
     lsSet(BK_K,String(Date.now()));say('تم ✓ '+users.length+' حساب، '+n+' ملف. احفظ الملف في مكان آمن.');}
