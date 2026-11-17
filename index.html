@@ -528,6 +528,8 @@ body:has(#instAsk) #gate .gcard,body:has(#instG) #gate .gcard{visibility:hidden}
 .plm{background:#123F31;color:#F3E6C4;border-radius:999px;padding:2px 10px;font-weight:700;white-space:nowrap}.plm.none{background:#B8860B;color:#fff}
 .plwarn{background:#FDE2D6;color:#7A2222;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14px;line-height:1.7}
 .plchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.plchip{border:1.5px solid var(--line,#D8CBAE);background:var(--card);border-radius:999px;padding:8px 14px;font:inherit;font-weight:700;color:inherit}.plchip.on{background:#123F31;color:#F3E6C4;border-color:#123F31}
+.shcard{background:var(--card);border:2px solid var(--gold,#B08D57);border-radius:16px;padding:14px 16px;margin:10px 0;display:flex;flex-direction:column;gap:3px}
+.shcard b{font-size:17px;color:#123F31}.shcard span{color:#6E6656}.shcard small{color:#8A5A12}
 </style></head>
 <body><div id="app"></div><div id="printRoot"></div>
 <noscript>فعّل JavaScript في المتصفح.</noscript>
@@ -989,7 +991,7 @@ function tourPlace(){const ov=$('#tour');if(!ov)return;const spot=ov.querySelect
 /* ---------- views ---------- */
 function render(){const a=$('#app');
   /* بدون دخول أو والحساب مقفول: ولا شي من التطبيق ينرسم ورا شاشة الدخول، عشان ما أحد يتجاوزها ولا يشوف بيانات أحد */try{if(DB&&typeof subState==='function'){const st=subState();if(st==='login'||st==='none'||st==='moved'||(subHard(st)&&S.v!=='export')){a.innerHTML='';subGate();return;}}}catch(e){}const f={week:vWeek,home:vHome,visit:vVisit,insts:vInsts,fill:vFill,sum:vSum,trash:vTrash,settings:vSettings,export:vExport,stats:vStats}[S.v]||vHome;
-  if(S.vid&&(!DB.visits[S.vid]||(DB.visits[S.vid].deleted&&S.v!=='trash'))&&S.v!=='home'){S={v:'home'}}a.innerHTML=f();setSaved('');if(S.v==='home')afterHome();if(S.v==='export')afterExport();if(S.v==='fill')afterFill();if(S.v==='sum')afterSum();try{subGate()}catch(e){}try{if(updPending)setTimeout(updTry,300)}catch(e){}}
+  if(S.vid&&(!DB.visits[S.vid]||(DB.visits[S.vid].deleted&&S.v!=='trash'))&&S.v!=='home'){S={v:'home'}}a.innerHTML=f();setSaved('');if(S.v==='home'){afterHome();if(typeof shareWire==='function')shareWire();}if(S.v==='export')afterExport();if(S.v==='fill')afterFill();if(S.v==='sum')afterSum();try{subGate()}catch(e){}try{if(updPending)setTimeout(updTry,300)}catch(e){}}
 function storageBanner(full){
   if(!storageOK&&!idb)return '<div class="status bad">'+IC.alert+'<div class="grow"><b>هذا المتصفح ما يحفظ.</b> افتح التطبيق من Chrome عشان ما يضيع شغلك.</div></div>';
   if(!full)return '';
@@ -1001,7 +1003,7 @@ function vHome(){
   h=h.replace('<button class="bbtn wide" onclick="guide()">','<button class="bbtn" onclick="stepFont(-1)" aria-label="تصغير الخط" title="تصغير الخط"><b style="font-size:15px;line-height:1;white-space:nowrap">أ−</b></button><button class="bbtn" onclick="stepFont(1)" aria-label="تكبير الخط" title="تكبير الخط"><b style="font-size:17px;line-height:1;white-space:nowrap">أ+</b></button><button class="bbtn wide" onclick="guide()">');
   h+='<h1>حيّاك الله'+(nm?' يا أستاذ '+esc(nm):'')+'</h1><div class="date">اليوم '+esc(td.w)+'، <b>'+esc(td.h)+'</b></div><div class="acts"><button class="btn gold" onclick="newVisit()">'+IC.plus+'زيارة جديدة</button>'+'<button class="btn onfolio" onclick="fetchSheet()">'+IC.save+(DB.settings.lastSync?'تحديث الحصص':'جيب الحصص')+'</button>'+(typeof planBtn==='function'?planBtn():'')+(DB.settings.lastSync?'<span class="muted" style="font-size:12px;align-self:center">آخر تحديث '+esc(new Date(DB.settings.lastSync).toLocaleString('ar-SA-u-nu-latn',{day:'numeric',month:'numeric',hour:'numeric',minute:'2-digit'}))+' · نسخة #'+(DB.settings.syncVer||1)+'</span>':'')+'<span class="muted" id="cloudInd" style="font-size:12px;align-self:center">'+cloudBadge()+'</span>'+subBadge()+(()=>{if(!vs.length||todayList().length)return '';const lv=vs.slice().sort((x,y)=>(y.updated||0)-(x.updated||0))[0];return '<button class="btn onfolio" onclick="go({v:\'visit\',vid:\''+lv.id+'\'})">متابعة '+esc(lv.school||'آخر زيارة')+'</button>';})()+'</div></div></section><div class="wrap">';
   h+=storageBanner(false);
-  h+=(typeof moveBanner==='function'?moveBanner():'');
+  h+=(typeof shareBanner==='function'?shareBanner():'');h+=(typeof moveBanner==='function'?moveBanner():'');
   h+=newsBanner();
   h+=renewBanner();
   h+=todayCard();
@@ -1095,7 +1097,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='87 · 7 جمادى الآخرة 1448 هـ 14:29';
+const BUILD='92 · 7 جمادى الآخرة 1448 هـ 14:47';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -1526,6 +1528,9 @@ function mapSubj(x,stage){const b=bare(x),L=SUBJ[stage]||SUBJ.p;if(!b)return '';
   const al=SUBJ_ALIAS[b];if(al)return al;const hit=L.find(s=>bare(s)===b)||L.find(s=>bare(s).includes(b)||b.includes(bare(s)));return hit||x.trim();}
 function mapGrade(g,stage){g=String(g||'').trim();if(!g)return '';return /(ابتدائ|متوسط|ثانوي)/.test(g)?g:g+' '+(STG_SFX[stage]||'');}
 function isMySrc(k){return String(k||'').indexOf('my:')===0;}
+/* مصدر الحصة: '' = منشئ التطبيق، 'my:ID:' = جدول مدرسة (سواه المشترك أو وصله من زميل) */
+function srcTag(k){const m=String(k||'').match(/^my:[^:]+:/);return m?m[0]:'';}
+function dayTag(d){return d&&d.my?(d.my===true?'my:?:':String(d.my)):'';}
 function isMine(members,me){return (members||[]).includes('*')||(members||[]).some(m=>norm(m)===norm(me));}
 function schedPlan(o,mineOnly){const me=o.for||DB.settings.name||'';const by={};
   /* نفس المدرسة لو تكررت زيارتها بعد أكثر من ١٠ أيام تصير زيارة ثانية مستقلة */
@@ -1545,7 +1550,7 @@ function grpStatus(o,mine){const st={};schedDiff(o,mine,null).forEach(({g,v,add,
   if(!v){st[k]={s:'new',n:g.rows.length};return;}
   if(v.deleted){st[k]={s:'del',n:g.rows.length};return;}
   let n=add.length+upd.length+rem.filter(x=>!insHasData('cls',x)).length;
-  const meta=g.days.some(d=>{const e=(v.schedDays||[]).find(y=>y.iso===d.iso);return !e||(d.acts&&JSON.stringify(e.acts||null)!==JSON.stringify(d.acts));})||(v.schedDays||[]).some(x=>(!!x.my===!!o.my)&&!g.days.some(d=>d.iso===x.iso)&&!instances(v,'cls').some(i=>insIso(v,i)===x.iso&&insHasData('cls',i)))||(g.st&&v.schedStage!==g.st&&!v.stageEdited);
+  const meta=g.days.some(d=>{const e=(v.schedDays||[]).find(y=>y.iso===d.iso);return !e||(d.acts&&JSON.stringify(e.acts||null)!==JSON.stringify(d.acts));})||(v.schedDays||[]).some(x=>(dayTag(x)===(o.my||''))&&!g.days.some(d=>d.iso===x.iso)&&!instances(v,'cls').some(i=>insIso(v,i)===x.iso&&insHasData('cls',i)))||(g.st&&v.schedStage!==g.st&&!v.stageEdited);
   st[k]={s:n||meta?'upd':'same',n};});return st;}
 function schedPreview(o){let mine=true,team=true,pick=null;const t0=today(),gk=g=>g.key;
   const isPast=g=>{const ds=g.days.map(d=>d.iso).filter(Boolean);return ds.length&&ds.every(i=>i<t0);};const me=o.for||DB.settings.name||'',single=!!o.for;
@@ -1602,7 +1607,7 @@ function schedDiff(o,mine,keep){const out=[];normalizeStages();
       used.add(ins.id);it.ins=it.ins||ins;const ed=ins.metaEdited||{};
       it.ch=Object.keys(meta).filter(k=>!ed[k]&&(ins.meta[k]||'')!==(meta[k]||''));(it.ch.length?upd:same).push(it);});
     /* كل مصدر (منشئ التطبيق / جدول سوّاه المشترك بنفسه «my:») يحذف حصصه هو بس، وما يلمس حصص المصدر الثاني */
-    const rem=L.filter(x=>x.src&&!used.has(x.id)&&isMySrc(x.src)===!!o.my);
+    const rem=L.filter(x=>x.src&&!used.has(x.id)&&srcTag(x.src)===(o.my||''));
     out.push({g,v,add,upd,same,rem});});
   return out;}
 function applySchedule(o,mine,roster,keep,dec){dec=dec||{};const skipAdd=dec.skipAdd||new Set(),skipUpd=dec.skipUpd||new Set(),rem=dec.rem||new Set();
@@ -1614,7 +1619,7 @@ function applySchedule(o,mine,roster,keep,dec){dec=dec||{};const skipAdd=dec.ski
     if(v&&v.deleted)delete v.deleted;
     if(!v){v={id:uid(),school:g.school,srcSchool:g.school,date:g.days[0].iso||today(),stage:g.stage,cards:{},src:'sched',created:Date.now(),updated:Date.now()};if(g.st)v.schedStage=g.st;DB.visits[v.id]=v;newV++;}
     v.srcSchool=v.srcSchool||g.school;
-    const keepOld=(v.schedDays||[]).filter(x=>!g.days.some(d=>d.iso===x.iso)&&((!!x.my!==!!o.my)||instances(v,'cls').some(i=>insIso(v,i)===x.iso&&insHasData('cls',i))));const sd=g.days.map(d=>{const ex=(v.schedDays||[]).find(x=>x.iso===d.iso),mix=ex&&(!!ex.my!==!!o.my);const r=Object.assign({},ex||{},d,{acts:mix?[...new Set((ex.acts||[]).concat(d.acts||[]))]:(d.acts||(ex&&ex.acts))});if(ex?(ex.my&&o.my):o.my)r.my=true;else delete r.my;return r;}).concat(keepOld);sd.sort((a,b)=>(a.iso||'').localeCompare(b.iso||''));v.schedDays=sd;
+    const keepOld=(v.schedDays||[]).filter(x=>!g.days.some(d=>d.iso===x.iso)&&((dayTag(x)!==(o.my||''))||instances(v,'cls').some(i=>insIso(v,i)===x.iso&&insHasData('cls',i))));const sd=g.days.map(d=>{const ex=(v.schedDays||[]).find(x=>x.iso===d.iso),mix=ex&&(dayTag(ex)!==(o.my||''));const r=Object.assign({},ex||{},d,{acts:mix?[...new Set((ex.acts||[]).concat(d.acts||[]))]:(d.acts||(ex&&ex.acts))});if(ex?(dayTag(ex)===(o.my||'')&&o.my):o.my)r.my=o.my;else delete r.my;return r;}).concat(keepOld);sd.sort((a,b)=>(a.iso||'').localeCompare(b.iso||''));v.schedDays=sd;
     if(sd[0]&&sd[0].iso&&!v.dateEdited)v.date=sd[0].iso;
     const L=instances(v,'cls');
     const stamp=x=>{x.ins.src=x.key;x.ins.day=x.d.dayName+' '+x.d.date;if(x.iso)x.ins.iso=x.iso;};
@@ -1970,7 +1975,7 @@ function cloudLogout(){
     if(DB.acct&&!DB.owner)DB.owner=DB.acct.uid;
     if(wipe){/* كل شي تأكدنا إنه في الحساب: نمسحه من الجهاز بس. شغل أي حساب ثاني محفوظ جانبًا على الجهاز ما يتأثر */
       const keep=DB.settings||{},nb=blank();['theme','fz','mode'].forEach(k=>{if(keep[k]!=null)nb.settings[k]=keep[k]});
-      DB.visits={};DB.synced={};DB.stamps={};DB.purged={};DB.syncBak=[];DB.plans={};DB.settings=nb.settings;DB.owner=null;DB.lastK=null;DB.sub=null;try{localStorage.removeItem('tq_ck');localStorage.removeItem('tq_ckAt')}catch(e){}
+      DB.visits={};DB.synced={};DB.stamps={};DB.purged={};DB.syncBak=[];DB.plans={};DB.plansGone={};DB.shares={};DB.settings=nb.settings;DB.owner=null;DB.lastK=null;DB.sub=null;try{localStorage.removeItem('tq_ck');localStorage.removeItem('tq_ckAt')}catch(e){}
       try{localStorage.removeItem('taqweem_view')}catch(e){}}
     else if(DB.acct&&DB.acct.k)DB.lastK={uid:DB.acct.uid,k:DB.acct.k,u:DB.acct.u};
     DB.acct=null;DB.sub=null;cloudTok=null;saveNow();try{await idbPut(JSON.stringify(DB))}catch(e){}
@@ -2028,7 +2033,9 @@ async function listRemote(uid){const out={};let pt='';do{const j=await fsReq('GE
 /* تأكد فعلي من السيرفر: كل زيارة على الجهاز موجودة في الحساب بنفس المحتوى بالضبط، وما فيه شي معلّق */
 async function verifySynced(){const a=acct();if(!a)return {ok:false,miss:0};let R;try{R=await listRemote(a.uid)}catch(e){return {ok:false,miss:-1}}
   const miss=Object.values(DB.visits).filter(v=>{const m=R[v.id];return !m||m.g||m.h!==visitHash(v)}).length;
-  const pend=Object.keys(DB.purged||{}).filter(id=>!(R[id]&&R[id].g)).length;return {ok:!miss&&!pend,miss:miss+pend};}
+  let pm=0;if(typeof planRemote==='function'&&(Object.keys(DB.plans||{}).length||Object.keys(DB.plansGone||{}).length)){let P;try{P=await planRemote(a.uid)}catch(e){return {ok:false,miss:-1}}
+    pm=Object.values(DB.plans||{}).filter(p=>{const m=P[p.id];return !m||m.g||+m.u!==+p.updated}).length+Object.keys(DB.plansGone||{}).filter(id=>!(P[id]&&P[id].g)).length;}
+  const pend=Object.keys(DB.purged||{}).filter(id=>!(R[id]&&R[id].g)).length;return {ok:!miss&&!pend&&!pm,miss:miss+pend+pm};}
 function setCloud(st,err){cloudState=st;cloudErr=err||'';const el=$('#cloudInd');if(el)el.innerHTML=cloudBadge();}
 function cloudBadge(){if(!acct())return '';const t=DB.acct.last?new Date(DB.acct.last).toLocaleTimeString('ar-SA-u-nu-latn',{hour:'numeric',minute:'2-digit'}):'';
   return cloudState==='busy'?'☁ يزامن…':cloudState==='off'?'☁ بانتظار النت':cloudState==='err'?'☁ ما تمت المزامنة':'☁ محفوظ في الحساب'+(t?' '+t:'');}
@@ -2045,6 +2052,7 @@ async function cloudSync(force){const a=acct();if(a&&!DB.owner){DB.owner=a.uid;s
     if(!ro)for(const v of Object.values(DB.visits)){const h=visitHash(v);if(SH[v.id]===h&&R[v.id])continue;if(R[v.id]&&R[v.id].h===h){SH[v.id]=h;continue;}
       SH[v.id]=await pushVisit(uid,v,K);pushed++;}
     if(!ro)for(const id of Object.keys(DB.purged||{})){if(R[id]&&R[id].g){delete DB.purged[id];continue;}await fsReq('PATCH','/users/'+uid+'/visits/'+id,fields({g:true,h:'gone',n:0,u:Date.now()}));delete DB.purged[id];}
+    /* جداول المدارس اللي سواها بنفسه: تنحفظ في حسابه مشفّرة مثل الزيارات */if(typeof planSync==='function')await planSync(uid,K,ro);
     DB.acct.last=Date.now();saveNow();setCloud('ok');
     if(pulled&&!(S.v==='fill'))render();}
   catch(e){if(e instanceof TypeError){setCloud('off');}else if(/INVALID_REFRESH_TOKEN|TOKEN_EXPIRED|USER_NOT_FOUND|USER_DISABLED/.test(e.code||e.message||'')){setCloud('err');toast('انتهى دخولك للحساب. ادخل مرة ثانية من الإعدادات.');}else setCloud(navigator.onLine===false?'off':'err',e.message);}
@@ -2458,7 +2466,7 @@ const PLAN_TEST=['0500000001@taqweem.app'];
 let PLAN_NODES=30000;
 const PLAN_WD=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'];
 function planOn(){try{if(!acct())return false;const e=acctEmail();return PLAN_TEST.indexOf(e)>=0||!!(DB.settings.flags&&DB.settings.flags.plan)}catch(e){return false}}
-async function flagFetch(){try{if(!acct()||navigator.onLine===false)return;const d=await fsReq('GET','/cfg/flags');const o=d?UF(d.fields):{};const f={plan:o.plan===true||o.plan==='all'};
+async function flagFetch(){try{if(!acct()||navigator.onLine===false)return;setTimeout(()=>shareFetch(true),1500);const d=await fsReq('GET','/cfg/flags');const o=d?UF(d.fields):{};const f={plan:o.plan===true||o.plan==='all'};
   if(JSON.stringify(f)!==JSON.stringify(DB.settings.flags||{})){DB.settings.flags=f;saveNow();if(S.v==='home')render();}}catch(e){}}
 function planBtn(){return planOn()?'<button class="btn onfolio" id="planBtn" onclick="planHome()">'+IC.plus+'جدول مدرسة</button>':'';}
 function plans(){return (DB.plans=DB.plans||{});}
@@ -2477,9 +2485,11 @@ function planToSched(pl){const me=planMe(pl),by={};pl.rows.forEach(r=>{(by[r.iso
       p.rows.push({id:r.id,t:'v',subject:r.subject,grade:r.grade,section:r.section,teacher:r.teacher,nid:r.nid,members:pl.solo?['*']:(r.m||[]).slice()});});
     const acts=rs.filter(r=>r.t==='a'&&(pl.solo||isMine(r.m,me))).map(r=>pTrim(r.text)).filter(Boolean);
     return {id:'my:'+pl.id+':'+iso,dayName:fmtDate(iso).w,date:planH(iso),school:pl.school,stage:pl.stage,acts:[...new Set(acts)],periods:ps};});
-  return {my:true,for:me,roster:pl.solo?[me]:pl.team.slice(),days};}
+  return {my:'my:'+pl.id+':',for:me,roster:pl.solo?[me]:pl.team.slice(),days};}
 /* «معك: فلان» للحصص اللي من جدولي */
-function planCo(ins){try{const m=String(ins.src||'').match(/^my:([^:]+):([^/]+)\/(.+)$/);if(!m)return [];const pl=plans()[m[1]];if(!pl||pl.solo)return [];const r=pl.rows.find(x=>x.id===m[3]);if(!r)return [];
+function planCo(ins){try{const m=String(ins.src||'').match(/^my:([^:]+):([^/]+)\/(.+)$/);if(!m)return [];const pl=plans()[m[1]];
+  if(!pl){const x=Object.values(shares()).find(y=>y.id===m[1]&&y.st==='acc');if(!x)return [];for(const d of x.o.days)for(const p of d.periods)for(const r of p.rows)if(r.id===m[3])return (r.co||[]).map(String);return [];}
+  if(pl.solo)return [];const r=pl.rows.find(x=>x.id===m[3]);if(!r)return [];
   const me=planMe(pl),L=(r.m||[]).includes('*')?pl.team:(r.m||[]);return L.filter(x=>norm(x)!==norm(me));}catch(e){return []}}
 
 /* ---------- التحقق من سطر ---------- */
@@ -2572,7 +2582,7 @@ function planDiffRows(pl,rows){const cur={};pl.rows.forEach(r=>{cur[planKey(r)]=
 
 /* ---------- الشاشات ---------- */
 let PL=null;
-function planSave(){if(!PL)return;PL.updated=Date.now();plans()[PL.id]=PL;saveNow();}
+function planSave(){if(!PL)return;PL.updated=Date.now();plans()[PL.id]=PL;saveNow();try{cloudSoon()}catch(e){}}
 function planHome(){if(!planOn())return;const L=Object.values(plans()).sort((a,b)=>(b.start||'').localeCompare(a.start||''));
   modal('<h3>جدول مدرسة</h3><p>جهّز جدول حصص مدرسة بنفسك: أضف الحصص بيدك أو أرفق ملف الإكسل، وتنزل حصصك في التطبيق.</p>'+
     (L.length?'<div class="ways">'+L.map(p=>'<button class="way" data-pl="'+esc(p.id)+'"><b>'+esc(p.school||'بدون اسم')+'</b><span>'+esc(fmtDate(p.start).h)+' · '+p.rows.filter(r=>r.t==='v').length+' حصة'+(p.solo?'':' · فريق '+p.team.length)+(p.applied?'':' · <b style="color:#B8860B">مسودة ما انحفظت</b>')+'</span></button>').join('')+'</div>':'')+
@@ -2605,13 +2615,13 @@ function planEdit(){const pl=PL;if(!pl)return;const days=planDays(pl),iss=planIs
     return '<div class="plday"><b>'+esc(planDayLbl(iso))+'</b>'+rs.map(r=>'<button class="plrow'+(r.t==='a'?' act':'')+(bad.has(r.id)?' bad':'')+'" data-r="'+esc(r.id)+'"><i>'+esc(r.p)+'</i><span>'+esc(planRowLbl(r))+'</span>'+chip(r)+'</button>').join('')+'</div>';}).join('');
   const nV=pl.rows.filter(r=>r.t==='v').length;
   modal('<h3>'+esc(pl.school)+'</h3><p class="muted" style="margin-top:-4px">'+esc(STAGES[pl.stage])+' · يبدأ '+esc(fmtDate(pl.start).w+' '+fmtDate(pl.start).h)+(pl.solo?' · لي أنا بس':' · الفريق: '+esc(pl.team.map(x=>x.split(' ')[0]).join('، '))+(pl.sup?' · المشرف: '+esc(pl.sup.split(' ')[0]):''))+' <a href="#" id="plInfo">تعديل</a></p>'+
-    '<div class="row" style="gap:8px;flex-wrap:wrap;margin:8px 0"><button class="btn primary sm" id="plAdd">'+IC.plus+'أضف حصة</button><button class="btn sm" id="plFile">'+IC.open+'أرفق ملف الإكسل</button>'+(pl.solo||!nV?'':'<button class="btn sm" id="plDist">وزّع تلقائي</button>')+'</div>'+
+    '<div class="row" style="gap:8px;flex-wrap:wrap;margin:8px 0"><button class="btn primary sm" id="plAdd">'+IC.plus+'أضف حصة</button><button class="btn sm" id="plFile">'+IC.open+'أرفق ملف الإكسل</button>'+(pl.solo||!nV?'':'<button class="btn sm" id="plDist">وزّع تلقائي</button>')+(pl.solo||!nV?'':'<button class="btn sm" id="plShare">أرسل لفريقك</button>')+'</div>'+
     (iss.length?'<div class="plwarn"><b>يحتاج تصحيح ('+iss.length+')</b>'+iss.slice(0,6).map(x=>'<div>'+esc(x.t)+'</div>').join('')+'</div>':'')+
     (list||'<p class="muted" style="margin:14px 0">ما فيه حصص للحين. اضغط «أضف حصة» أو «أرفق ملف الإكسل».</p>')+
     '<div class="acts"><button class="btn gold" id="plGo"'+(pl.rows.length&&!iss.length?'':' disabled')+'>'+IC.check+'احفظ ونزّل حصصي</button>'+(pl.rows.length?'<button class="btn" id="plPdf">PDF</button><button class="btn" id="plXls">إكسل</button>':'')+'<button class="btn ghost" id="plDel">حذف الجدول</button><button class="btn ghost" onclick="closeModal()">إغلاق</button></div>'+
     (pl.applied?'<p class="muted" style="font-size:12.5px;margin-top:6px">آخر حفظ: '+esc(new Date(pl.applied).toLocaleString('ar-SA-u-nu-latn',{day:'numeric',month:'numeric',hour:'numeric',minute:'2-digit'}))+(pl.updated>pl.applied+500?' · <b style="color:#B8860B">فيه تعديلات ما انحفظت</b>':'')+'</p>':''),'plmodal');
   $('#plInfo').onclick=e=>{e.preventDefault();planForm(pl);};$('#plAdd').onclick=()=>planRow(null);$('#plFile').onclick=planPickFile;
-  const d=$('#plDist');if(d)d.onclick=planDistUI;const g=$('#plGo');if(g)g.onclick=planApply;const pp=$('#plPdf');if(pp)pp.onclick=planPDF;const px=$('#plXls');if(px)px.onclick=planXlsx;
+  const d=$('#plDist');if(d)d.onclick=planDistUI;const sh=$('#plShare');if(sh)sh.onclick=()=>{if(planIssues(pl).length)return toast('صحّح الأسطر المعلّمة أول');planShareUI();};const g=$('#plGo');if(g)g.onclick=planApply;const pp=$('#plPdf');if(pp)pp.onclick=planPDF;const px=$('#plXls');if(px)px.onclick=planXlsx;
   $('#plDel').onclick=planDelete;document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>planRow(pl.rows.find(r=>r.id===b.dataset.r)));}
 function planRow(row){const pl=PL,days=planDays(pl),last=pl.rows[pl.rows.length-1],r=row||{t:'v',iso:(last&&last.iso)||days[0],p:(last&&last.p)||PERIODS[0],subject:'',grade:'',section:'',teacher:'',nid:'',text:'',m:[]};
   const subs=SUBJ[pl.stage]||SUBJ.p,known=subs.indexOf(r.subject)>=0||!r.subject,tchs=[...new Map(pl.rows.filter(x=>x.t==='v'&&x.teacher).map(x=>[norm(x.teacher),x])).values()];
@@ -2680,9 +2690,12 @@ function planFileReview(F,warn){const pl=PL,D=planDiffRows(pl,F.rows),first=!pl.
     const iss=planIssues(pl);toast(iss.length?'انضافت، وفيه '+iss.length+' سطر يحتاج تصحيح':'تمت الإضافة من الملف ✓');};}
 
 /* ---------- الحفظ: تنزيل حصصي في الزيارات ---------- */
-function planForeign(pl){const o=planToSched(pl);let hit=null;schedPlan(o,false).forEach(g=>{const v=findVisitFor(g);if(v&&!v.deleted&&v.planId!==pl.id&&instances(v,'cls').some(i=>i.src&&!isMySrc(i.src)))hit=v;});return hit;}
+/* هل المدرسة نفسها جت من مصدر ثاني (منشئ التطبيق أو جدول ثاني) في نفس الفترة؟ عشان ما تتكرر الحصص */
+function schedForeign(o){let hit=null;const tag=o.my||'';schedPlan(o,true).forEach(g=>{const v=findVisitFor(g);if(v&&!v.deleted&&instances(v,'cls').some(i=>i.src&&srcTag(i.src)!==tag))hit=v;});return hit;}
+function planForeign(pl){return schedForeign(planToSched(pl));}
 function planApply(){const pl=PL;if(!pl)return;const iss=planIssues(pl);if(iss.length)return toast('صحّح الأسطر المعلّمة أول');
   const fv=planForeign(pl);if(fv){return modal('<h3>هذي المدرسة موجودة عندك</h3><p>«'+esc(fv.school)+'» جتك حصصها من منشئ التطبيق في نفس الفترة. عشان ما تتكرر، افتحها وأضف الحصة الناقصة من داخلها.</p><div class="acts"><button class="btn primary" id="fvB">رجوع</button></div>','nudge'),$('#fvB').onclick=planEdit,void 0;}
+  /* الزملاء يوصلهم التعديل على طول، حتى قبل ما يعتمد حصصه هو */if(pl.phones&&Object.keys(pl.phones).length){pl.applied=Date.now();pl.updated=pl.applied;plans()[pl.id]=pl;saveNow();shareSend();}
   const o=planToSched(pl);
   if(!pl.solo&&!o.days.some(d=>d.periods.some(p=>p.rows.some(r=>isMine(r.members,o.for)))||d.acts.length)){/* ما له حصص هو: ينحفظ الجدول بس */}
   const diff=schedDiff(o,true,null);
@@ -2690,7 +2703,7 @@ function planApply(){const pl=PL;if(!pl)return;const iss=planIssues(pl);if(iss.l
     const mine=res.add+res.upd+res.del;toast(mine?'انحفظ الجدول: '+[res.add?'انضافت '+res.add:'',res.upd?'تحدّثت '+res.upd:'',res.del?'انحذفت '+res.del+' فاضية':''].filter(Boolean).join('، '):'انحفظ الجدول ✓');});}
 function planDelete(){const pl=PL;modal('<h3>حذف الجدول؟</h3><p>ينحذف الجدول، وتنحذف حصصه اللي ما بدأت فيها. الحصص اللي فيها تقييم تبقى عندك.</p><div class="acts"><button class="btn dangerfill" id="pdY">'+IC.trash+'حذف</button><button class="btn ghost" id="pdN">إلغاء</button></div>','nudge');
   $('#pdN').onclick=planEdit;$('#pdY').onclick=()=>{if(pl.applied){const o=planToSched(pl);o.days.forEach(d=>{d.periods=[];d.acts=[]});try{applySchedule(o,true,null,null,{})}catch(e){}}
-    delete plans()[pl.id];PL=null;saveNow();closeModal('nav');go({v:'home'},true);toast('انحذف الجدول');};}
+    delete plans()[pl.id];(DB.plansGone=DB.plansGone||{})[pl.id]=Date.now();PL=null;saveNow();if((DB.shareOut||[]).length)shareSend();try{cloudSoon(800)}catch(e){};closeModal('nav');go({v:'home'},true);toast('انحذف الجدول');};}
 
 /* ---------- التصدير ---------- */
 function planTable(pl){const days=planDays(pl).filter(iso=>pl.rows.some(r=>r.iso===iso)),td='border:1px solid #C9AF80;padding:6px 8px;text-align:center;font-size:13px',th=td+';background:#123F31;color:#F3E6C4;font-weight:700';
@@ -2714,4 +2727,94 @@ function planXlsxBytes(pl){const xe=s=>String(s==null?'':s).replace(/[&<>"]/g,c=
     'xl/_rels/workbook.xml.rels':enc(X+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'),
     'xl/worksheets/sheet1.xml':enc(X+'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView rightToLeft="1" workbookViewId="0"/></sheetViews><sheetFormatPr defaultRowHeight="18"/><cols><col min="1" max="1" width="5" customWidth="1"/><col min="2" max="4" width="13" customWidth="1"/><col min="5" max="5" width="24" customWidth="1"/><col min="6" max="7" width="10" customWidth="1"/><col min="8" max="8" width="26" customWidth="1"/><col min="9" max="11" width="16" customWidth="1"/></cols><sheetData>'+rows.join('')+'</sheetData></worksheet>')});}
 function planXlsx(){const pl=PL;try{const b=new Blob([planXlsxBytes(pl)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),fn=safeFile('جدول '+pl.school)+'.xlsx',a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},8000);toast('انحفظ الملف «'+esc(fn)+'» في التنزيلات');}catch(e){toast('ما قدرت أجهّز الملف')}}
+
+/* ---------- حفظ الجداول في الحساب (مشفّرة بمفتاح المشترك نفسه، مثل الزيارات) ---------- */
+async function planRemote(uid){const out={};let pt='';do{const j=await fsReq('GET','/users/'+uid+'/plans?pageSize=300'+(pt?'&pageToken='+encodeURIComponent(pt):''));((j&&j.documents)||[]).forEach(d=>{out[d.name.split('/').pop()]=UF(d.fields)});pt=j&&j.nextPageToken;}while(pt);return out;}
+async function planSync(uid,K,ro){const P=plans(),G=(DB.plansGone=DB.plansGone||{});if(!Object.keys(P).length&&!Object.keys(G).length&&DB.plansPulled===uid)return;
+  const R=await planRemote(uid);let ch=false;
+  Object.keys(R).forEach(id=>{const m=R[id],lp=P[id];
+    if(m.g){if(lp&&(lp.updated||0)<=(+m.u||0)){delete P[id];ch=true;}return;}
+    if(G[id])return;
+    if(!lp||(+m.u||0)>(lp.updated||0)){try{const o=unseal(m.c,K);if(o&&o.id===id&&Array.isArray(o.rows)){P[id]=o;if(PL&&PL.id===id)PL=o;ch=true;}}catch(e){}}});
+  if(!ro){for(const pl of Object.values(P)){const m=R[pl.id];if(m&&!m.g&&+m.u===+pl.updated)continue;if(m&&m.g&&(pl.updated||0)<=(+m.u||0))continue;
+      await fsReq('PATCH','/users/'+uid+'/plans/'+encodeURIComponent(pl.id),fields({c:seal(pl,K),u:pl.updated||0}));}
+    for(const id of Object.keys(G)){if(!(R[id]&&R[id].g))await fsReq('PATCH','/users/'+uid+'/plans/'+encodeURIComponent(id),fields({g:true,u:G[id]}));delete G[id];ch=true;}}
+  DB.plansPulled=uid;if(ch)saveNow();}
+
+/* ================= مشاركة الجدول مع الزملاء =================
+   المرسل يكتب رقم جوال زميله. ينكتب له مستند في /share/{إيميله}/from/{uid المرسل} فيه حصصه هو بس.
+   الزميل تطلع له بطاقة «فلان أضافك لجدول» ويضغط «استلم حصصي» أو «مو لي». ما ينزل شي قبل ما يقبل.
+   القواعد في السيرفر: المرسل يكتب في مستنده بس، والمستلم يقرا مستنداته ويكتب قبوله/رفضه بس. */
+function shares(){return (DB.shares=DB.shares||{});}
+function phoneEmail(ph){const u=normUser(ph||'');if(!u)return '';return u.indexOf('@')<0?u+'@'+FB.domain:u;}
+function phoneOk(ph){const u=normUser(ph||'');return /^05\d{8}$/.test(u)||USER_ALIAS[String(u)]!=null||u==='ali';}
+function shareJ(s){try{return JSON.parse(s||'{}')||{}}catch(e){return {}}}
+/* حصص عضو واحد من جدول فريق، ومعها «معك» */
+function planForMember(pl,name){const by={};pl.rows.forEach(r=>{if(isMine(r.m,name))(by[r.iso]=by[r.iso]||[]).push(r)});
+  const coOfRow=r=>((r.m||[]).includes('*')?pl.team:(r.m||[])).filter(x=>norm(x)!==norm(name));
+  const days=Object.keys(by).sort().map(iso=>{const ps=[];by[iso].filter(r=>r.t==='v').sort((a,b)=>perIdx(a.p)-perIdx(b.p)).forEach(r=>{let p=ps.find(x=>x.name===r.p);if(!p)ps.push(p={name:r.p,rows:[]});
+      p.rows.push({id:r.id,t:'v',subject:r.subject,grade:r.grade,section:r.section,teacher:r.teacher,nid:r.nid,members:[name],co:coOfRow(r)});});
+    return {id:'my:'+pl.id+':'+iso,dayName:fmtDate(iso).w,date:planH(iso),school:pl.school,stage:pl.stage,acts:[...new Set(by[iso].filter(r=>r.t==='a').map(r=>pTrim(r.text)).filter(Boolean))],periods:ps};});
+  return {my:'my:'+pl.id+':',for:name,roster:pl.team.slice(),days};}
+/* كل المستلمين من كل جداولي: {إيميل: {plans:{id:{...}}}} */
+function shareBuild(){const out={},myE=acctEmail();(DB.shareOut||[]).forEach(e=>{out[e]={}});
+  Object.values(plans()).forEach(pl=>{if(pl.solo||!pl.phones)return;Object.keys(pl.phones).forEach(name=>{if(!pl.team.some(t=>t===name))return;const e=phoneEmail(pl.phones[name]);if(!e||e===myE)return;
+    const o=planForMember(pl,name);(out[e]=out[e]||{})[pl.id]={school:pl.school,stage:pl.stage,start:pl.start,ts:pl.updated||0,n:o.days.reduce((a,d)=>a+d.periods.reduce((x,p)=>x+p.rows.length,0),0),o};});});
+  return out;}
+let shareBusy=false;
+async function shareSend(){if(!acct()||navigator.onLine===false||subLocked()){DB.shareDirty=1;saveNow();return false;}if(shareBusy)return false;shareBusy=true;
+  try{const all=shareBuild(),uid=DB.acct.uid,fn=pTrim(DB.settings.name||(DB.sub&&DB.sub.name)||'زميل').slice(0,80),sent=[];
+    for(const e of Object.keys(all)){const c=JSON.stringify({v:1,plans:all[e]});if(c.length>390000)continue;
+      await fsReq('PATCH','/share/'+encodeURIComponent(e)+'/from/'+uid+'?updateMask.fieldPaths=c&updateMask.fieldPaths=ts&updateMask.fieldPaths=fn',fields({c,ts:Date.now(),fn}));if(Object.keys(all[e]).length)sent.push(e);}
+    DB.shareOut=sent;DB.shareDirty=0;saveNow();await shareStatus();return true;}
+  catch(e){DB.shareDirty=1;saveNow();return false;}finally{shareBusy=false;}}
+async function shareStatus(){const uid=DB.acct&&DB.acct.uid,st={};if(!uid)return;for(const e of (DB.shareOut||[])){try{const d=await fsReq('GET','/share/'+encodeURIComponent(e)+'/from/'+uid);if(d){const o=UF(d.fields);st[e]={acc:shareJ(o.acc),rej:shareJ(o.rej),rn:o.rn||''};}}catch(x){}}DB.shareStat=st;saveNow();}
+function shareState(pl,name){const e=phoneEmail((pl.phones||{})[name]);if(!e)return '';const s=(DB.shareStat||{})[e];if(!s)return '<small class="muted">ما انرسل للحين</small>';
+  if(s.rej[pl.id])return '<small style="color:#B23A3A;font-weight:700">ردّ «مو لي»'+(s.rn?' ('+esc(s.rn)+')':'')+'</small>';if(s.acc[pl.id])return '<small style="color:#2F7A55;font-weight:700">استلم ✓'+(s.rn?' ('+esc(s.rn)+')':'')+'</small>';return '<small class="muted">وصلته الدعوة، ما استلم للحين</small>';}
+function planShareUI(){const pl=PL,me=planMe(pl),others=pl.team.filter(n=>norm(n)!==norm(me)),C=DB.settings.contacts||{};pl.phones=pl.phones||{};
+  modal('<h3>أرسل لفريقك</h3><p>اكتب رقم جوال كل زميل مشترك في التطبيق. تطلع له دعوة في تطبيقه، وإذا ضغط «استلم» تنزل عنده حصصه هو بس. اللي مو مشترك اترك رقمه فاضي، وأرسل له الجدول PDF.</p>'+
+    others.map((n,k)=>'<label class="f" style="margin-top:8px">'+esc(n)+' '+shareState(pl,n)+'<input class="inp" data-ph="'+k+'" inputmode="tel" autocomplete="off" placeholder="05xxxxxxxx" value="'+esc(pl.phones[n]||C[norm(n)]||'')+'"></label>').join('')+
+    '<p class="rerr" id="sh_err"></p><div class="acts"><button class="btn primary" id="sh_go">أرسل</button><button class="btn" id="sh_rf">تحديث الحالة</button><button class="btn ghost" id="sh_x">رجوع</button></div>','nudge');
+  $('#sh_x').onclick=planEdit;$('#sh_rf').onclick=async()=>{await shareStatus();planShareUI();};
+  $('#sh_go').onclick=async()=>{const ph={},seen={},myE=acctEmail();let bad='';
+    document.querySelectorAll('[data-ph]').forEach(i=>{const n=others[+i.dataset.ph],v=pDig(i.value).trim();if(!v)return;if(!phoneOk(v)){bad='رقم «'+n+'» غلط. اكتبه مثل 05xxxxxxxx';return;}const e=phoneEmail(v);if(e===myE){bad='رقم «'+n+'» هو رقمك أنت';return;}if(seen[e]){bad='نفس الرقم مكتوب لـ «'+seen[e]+'» و«'+n+'»';return;}seen[e]=n;ph[n]=normUser(v);});
+    if(bad)return $('#sh_err').textContent=bad;if(!Object.keys(ph).length)return $('#sh_err').textContent='اكتب رقم واحد على الأقل';
+    if(navigator.onLine===false)return $('#sh_err').textContent='الإرسال يحتاج نت';
+    const lst=Object.keys(ph).map(n=>'<li><b>'+esc(n)+'</b> · رقم ينتهي بـ '+esc(String(ph[n]).slice(-4))+' · '+planForMember(pl,n).days.reduce((a,d)=>a+d.periods.reduce((x,p)=>x+p.rows.length,0),0)+' حصة</li>').join('');
+    modal('<h3>تأكيد الإرسال</h3><p>بتوصل دعوة لـ:</p><ul>'+lst+'</ul><p class="muted">تأكد إن الأرقام صحيحة. إذا رقم غلط، صاحبه يقدر يضغط «مو لي».</p><div class="acts"><button class="btn primary" id="sh_y">تأكيد وإرسال</button><button class="btn ghost" id="sh_n">رجوع</button></div>','nudge');
+    $('#sh_n').onclick=planShareUI;$('#sh_y').onclick=async()=>{pl.phones=ph;DB.settings.contacts=Object.assign({},C);Object.keys(ph).forEach(n=>{DB.settings.contacts[norm(n)]=ph[n]});planSave();
+      modal('<h3>لحظة، أرسل…</h3>','nudge');const ok=await shareSend();if(ok){planShareUI();toast('انرسلت الدعوات ✓');}else{planShareUI();$('#sh_err').textContent='ما قدرت أرسل الحين. بيتأرسل لحاله أول ما يرجع النت.';}};};}
+
+/* ---------- عند المستلم ---------- */
+let shareAt=0;
+async function shareFetch(force){if(!acct()||navigator.onLine===false||subLocked())return;if(!force&&Date.now()-shareAt<60e3)return;shareAt=Date.now();
+  if(DB.shareDirty)shareSend();
+  let j;try{j=await fsReq('GET','/share/'+encodeURIComponent(acctEmail())+'/from?pageSize=100')}catch(e){return}
+  const S0=shares(),now={};let ch=false;
+  ((j&&j.documents)||[]).forEach(d=>{const from=d.name.split('/').pop(),o=UF(d.fields),c=shareJ(o.c),acc=shareJ(o.acc),rej=shareJ(o.rej);
+    Object.keys((c&&c.plans)||{}).forEach(id=>{const P=c.plans[id];if(!P||!P.o||!Array.isArray(P.o.days))return;const k=from+':'+id;now[k]=1;const cur=S0[k];
+      const st=rej[id]?'rej':cur&&cur.st==='acc'?'acc':acc[id]?'acc':cur&&cur.st==='dup'?'dup':'new';
+      if(!cur||cur.ts!==P.ts||cur.st!==st||cur.fn!==o.fn){S0[k]=Object.assign({},cur||{},{k,from,id,fn:pTrim(o.fn||'زميل'),school:P.school,stage:P.stage,start:P.start,ts:P.ts,n:P.n,o:P.o,st});ch=true;}});});
+  /* جداول انشالت عند المرسل: حصصها الفاضية تنشال، واللي فيها تقييم تبقى */
+  Object.keys(S0).forEach(k=>{if(now[k])return;const x=S0[k];if(x.st==='acc'&&x.applied){const o=JSON.parse(JSON.stringify(x.o));o.days.forEach(d=>{d.periods=[];d.acts=[]});try{applySchedule(o,true,null,null,{})}catch(e){}toast('انشال جدول «'+esc(x.school)+'» من '+esc(x.fn));}delete S0[k];ch=true;});
+  /* المقبولة اللي تحدّثت: تتحدّث لحالها */
+  Object.values(S0).forEach(x=>{if(x.st==='acc'&&x.applied!==x.ts){const r=shareApply(x,true);if(r)ch=true;}});
+  if(ch){saveNow();if(S.v==='home')render();}}
+function shareApply(x,auto){const o=x.o;if(schedForeign(o)){x.st='dup';return false;}
+  const res=applySchedule(o,true,null,null,{});res.touched.forEach(id=>{const v=DB.visits[id];if(v){v.shareK=x.k;touch(v)}});x.applied=x.ts;x.st='acc';saveNow();
+  if(auto&&(res.add||res.upd||res.del))toast('تحدّث جدول «'+esc(x.school)+'» من '+esc(x.fn)+': '+[res.add?'انضافت '+res.add:'',res.upd?'تحدّثت '+res.upd:'',res.del?'انحذفت '+res.del:''].filter(Boolean).join('، '));return true;}
+async function shareMark(x,what){const p='/share/'+encodeURIComponent(acctEmail())+'/from/'+x.from;try{const d=await fsReq('GET',p);if(!d)return;const o=UF(d.fields),acc=shareJ(o.acc),rej=shareJ(o.rej);
+    if(what==='acc'){acc[x.id]=Date.now();delete rej[x.id];}else{rej[x.id]=Date.now();delete acc[x.id];}
+    await fsReq('PATCH',p+'?updateMask.fieldPaths=acc&updateMask.fieldPaths=rej&updateMask.fieldPaths=rn&currentDocument.exists=true',fields({acc:JSON.stringify(acc),rej:JSON.stringify(rej),rn:pTrim(DB.settings.name||(DB.sub&&DB.sub.name)||'').slice(0,80)}));}catch(e){}}
+function shareBanner(){if(!acct())return '';const L=Object.values(shares()).filter(x=>x.st==='new'||x.st==='dup');if(!L.length)return '';
+  return L.map(x=>'<div class="shcard"><b>'+esc(x.fn)+' أضافك لجدول مدرسة</b><span>'+esc(fmtDate(x.start).w+' '+fmtDate(x.start).h)+' · '+(+x.n||0)+' حصة</span>'+(x.st==='dup'?'<small>هذي المدرسة جتك من مصدر ثاني في نفس الفترة، فما أضفتها عشان ما تتكرر.</small>':'')+
+    '<div class="row" style="gap:8px;margin-top:8px">'+(x.st==='dup'?'<button class="btn sm" data-sh="rej" data-k="'+esc(x.k)+'">تمام، أخفها</button>':'<button class="btn primary" data-sh="acc" data-k="'+esc(x.k)+'">'+IC.check+'استلم حصصي</button><button class="btn ghost sm" data-sh="rej" data-k="'+esc(x.k)+'">مو لي</button>')+'</div></div>').join('');}
+function shareWire(){document.querySelectorAll('[data-sh]').forEach(b=>b.onclick=async()=>{const x=shares()[b.dataset.k];if(!x)return;
+  if(b.dataset.sh==='rej'){x.st='rej';saveNow();render();shareMark(x,'rej');return toast('تمام، ما تنزل عندك');}
+  if(subLocked())return toast('اشتراكك منتهي، ما تقدر تستلم حصص جديدة');
+  if(!shareApply(x,false)){saveNow();render();return toast('هذي المدرسة جتك من مصدر ثاني، فما أضفتها عشان ما تتكرر');}
+  render();shareMark(x,'acc');toast('نزلت حصصك من جدول «'+esc(x.school)+'» ✓');});}
+document.addEventListener('visibilitychange',()=>{if(DB&&!document.hidden)setTimeout(()=>shareFetch(),2500)});
+window.addEventListener('online',()=>{if(DB)setTimeout(()=>shareFetch(true),2500)});
+setInterval(()=>{if(DB&&!document.hidden)shareFetch()},5*60e3);
 </script></body></html>
