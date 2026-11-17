@@ -1139,7 +1139,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='122 · 7 جمادى الآخرة 1448 هـ 16:54';
+const BUILD='124 · 7 جمادى الآخرة 1448 هـ 17:02';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -2574,7 +2574,8 @@ const PLAN_WD=['الأحد','الاثنين','الثلاثاء','الأربعا�
 /* الشواهد المضافة والملاحظات العامة بالكيبورد: مخفية إلا على حساب التجربة وحساب الوالد أو لو فعّلها منشئ التطبيق (cfg/flags ev) */
 /* مفتوحة للوالد يجربها قبل الكل */
 const EV_TEST=['ali@taqweem.app'];
-function evOn(){try{if(!acct())return false;const e=acctEmail();return PLAN_TEST.indexOf(e)>=0||EV_TEST.indexOf(e)>=0||!!(DB.settings.flags&&DB.settings.flags.ev)}catch(e){return false}}
+/* اعتمدها منشئ التطبيق للكل */
+function evOn(){return true;}
 function planOn(){try{if(!acct())return false;const e=acctEmail();return PLAN_TEST.indexOf(e)>=0||!!(DB.settings.flags&&DB.settings.flags.plan)}catch(e){return false}}
 async function flagFetch(){try{if(!acct()||navigator.onLine===false)return;setTimeout(()=>shareFetch(true),1500);const d=await fsReq('GET','/cfg/flags');const o=d?UF(d.fields):{};const f={plan:o.plan===true||o.plan==='all',ev:o.ev===true||o.ev==='all'};
   if(JSON.stringify(f)!==JSON.stringify(DB.settings.flags||{})){DB.settings.flags=f;saveNow();if(S.v==='home')render();}}catch(e){}}
