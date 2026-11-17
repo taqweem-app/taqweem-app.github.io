@@ -1097,7 +1097,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='92 · 7 جمادى الآخرة 1448 هـ 14:47';
+const BUILD='94 · 7 جمادى الآخرة 1448 هـ 15:03';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -2267,6 +2267,11 @@ document.addEventListener('focusout',e=>{const t=e.target;if(!t.dataset||(t.data
   chgT=setTimeout(()=>{const a=document.activeElement;if(a&&a.dataset&&(a.dataset.meta==='teacher'||a.dataset.meta==='nid'))return;chgAsk();},700);});
 function chgAsk(){const c=chgCtx();if(!c)return;const {v,ins}=c,m=ins.meta||{},o=ins.orig0||{},sent=ins.chgSent||{};
   const nt=(m.teacher||'').trim(),nn=(m.nid||'').trim();if(!nt)return;if(nt===(o.teacher||'').trim()&&nn===(o.nid||'').trim())return;if(sent.teacher===nt&&sent.nid===nn)return;
+  /* غيّر اسم المعلم وخلى رقم الهوية نفسه: غالبًا نسي يغيّره */
+  if(o.nid&&nn===String(o.nid).trim()&&norm(nt)!==norm(o.teacher||'')&&ins.nidOk!==nt){
+    modal('<h3>رقم الهوية ما تغيّر</h3><p>غيّرت اسم المعلم من <b>'+esc(o.teacher||'—')+'</b> إلى <b>'+esc(nt)+'</b>، بس رقم الهوية بقى نفسه: <b>'+esc(nn)+'</b>.</p><p>إذا هذا معلم ثاني، غيّر رقم هويته.</p><div class="acts"><button class="btn primary" id="niFix">أغيّر رقم الهوية</button><button class="btn ghost" id="niOk">الرقم صحيح، خله زي ما هو</button></div>','nudge');
+    $('#niFix').onclick=()=>{closeModal(false,()=>{const f=document.querySelector('[data-meta="nid"]');if(f){f.focus();try{f.select()}catch(e){}}});};
+    $('#niOk').onclick=()=>{ins.nidOk=nt;saveNow();closeModal(false,()=>chgAsk());};return;}
   modal('<h3>تغيّر المعلم؟</h3><p>الحصة '+esc(m.period||'')+' · '+esc(clsLabel(ins))+'<br>من: <b>'+esc(o.teacher||'—')+'</b>'+(o.nid?' ('+esc(o.nid)+')':'')+'<br>إلى: <b>'+esc(nt)+'</b>'+(nn?' ('+esc(nn)+')':'')+'</p><p>تأكد إن الاسم والهوية صحيحة. إذا أكدت، يتغير في جدول منشئ التطبيق وعند اللي معك في الحصة. تقييمك ما يطلع منه شي.</p><p class="rerr" id="chE"></p><div class="acts"><button class="btn primary" id="chY">تأكيد التغيير</button><button class="btn ghost" id="chN">عندي بس</button></div>','nudge');
   $('#chN').onclick=()=>{ins.chgSent={teacher:nt,nid:nn};saveNow();closeModal();};
   $('#chY').onclick=async()=>{if(navigator.onLine===false)return $('#chE').textContent='يحتاج نت، أكّد لما تتصل';$('#chY').disabled=true;$('#chE').textContent='لحظة…';
