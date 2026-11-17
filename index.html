@@ -564,6 +564,7 @@ body:has(#instAsk) #gate .gcard,body:has(#instG) #gate .gcard{visibility:hidden}
 .more .othint{font-size:14px;margin-top:6px}
 .othsub{display:block;font-size:14px;font-weight:500;color:var(--ink3);margin:2px 0 6px;line-height:1.5}.flab .othsub{font-size:12px;margin:2px 0 0}
 .flab.fcol{flex-direction:column;gap:2px}
+.oldgn{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line)}.oldgnh{font-weight:600;color:var(--ink3);font-size:14px;margin-bottom:6px}.oldgn p{margin:0 0 8px}
 </style></head>
 <body><div id="app"></div><div id="printRoot"></div>
 <noscript>فعّل JavaScript في المتصفح.</noscript>
@@ -776,7 +777,7 @@ function idbGet(){return new Promise(res=>{if(!idb)return res(null);setTimeout((
 function idbPut(s){return new Promise(res=>{if(!idb)return res(false);try{const tx=idb.transaction('kv','readwrite');tx.objectStore('kv').put(s,'db');tx.oncomplete=()=>res(true);tx.onerror=()=>res(false);}catch(e){res(false)}});}
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
-function stripInk(d){const c=JSON.parse(JSON.stringify(d));Object.values(c.visits).forEach(v=>Object.values(v.cards||{}).forEach(arr=>arr.forEach(ins=>{delete ins.ink;Object.values(ins.items||{}).forEach(r=>{delete r.ink;if(r&&Array.isArray(r.add))r.add.forEach(x=>{if(x&&x.ink){delete x.ink;if(!String(x.t||'').trim())x.t='شاهد بالقلم';}});})})));c.inkStripped=true;return c;}
+function stripInk(d){const c=JSON.parse(JSON.stringify(d));Object.values(c.visits).forEach(v=>{delete v.gink;});Object.values(c.visits).forEach(v=>Object.values(v.cards||{}).forEach(arr=>arr.forEach(ins=>{delete ins.ink;Object.values(ins.items||{}).forEach(r=>{delete r.ink;if(r&&Array.isArray(r.add))r.add.forEach(x=>{if(x&&x.ink){delete x.ink;if(!String(x.t||'').trim())x.t='شاهد بالقلم';}});})})));c.inkStripped=true;return c;}
 async function load(){
   idb=await idbOpen();
   const t='__t'+Date.now();storageOK=lsSet(t,'1')&&lsGet(t)==='1';try{localStorage.removeItem(t)}catch(e){}
@@ -1138,7 +1139,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='119 · 7 جمادى الآخرة 1448 هـ 16:35';
+const BUILD='121 · 7 جمادى الآخرة 1448 هـ 16:49';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -1310,7 +1311,14 @@ function vFill(){const v=DB.visits[S.vid],c=CARD[S.cid],ins=curIns();if(!ins){S=
   if(S.i!==-1||mode==='all')h+=insPadBlock(ins);
   if(c.multi)h+='<div class="row" style="margin-top:22px"><button class="btn ghost danger" onclick="delInst()">'+IC.trash+'حذف هذه ال'+c.unit+'</button></div>';
   return h+'</div>';}
-function insPadBlock(ins){const kb=evOnSafe()||!!String(ins.note||'').trim();return '<div class="panel"><div class="row"><h3 style="flex:1;margin:0">'+'ملاحظات عامة للزيارة'+'</h3><button class="btn sm" data-pad="ins">'+IC.pen+(ins.ink?'تعديل الكتابة':kb?'بالقلم':'كتابة بالقلم')+'</button></div>'+(kb?'<textarea class="inp" data-insnote rows="3" style="margin-top:12px" placeholder="اكتب ملاحظاتك العامة هنا">'+esc(ins.note||'')+'</textarea>':'')+(ins.ink?'<img class="inkthumb" style="margin-top:12px;max-width:100%;height:auto;max-height:180px" src="'+ins.ink+'">':'')+'</div>';}
+/* ملاحظات عامة للزيارة: وحدة للزيارة كلها (v.gnote كتابة، v.gink قلم)، تطلع نفسها في كل البطاقات والحصص.
+   الملاحظات العامة القديمة اللي انكتبت على بطاقة لحالها (ins.ink / ins.note) تبقى زي ما هي وتطلع تحتها */
+function insPadBlock(ins){const v=DB.visits[S.vid]||{},kb=evOnSafe()||!!String(v.gnote||'').trim();
+  let h='<div class="panel"><div class="row"><h3 style="flex:1;margin:0">ملاحظات عامة للزيارة</h3><button class="btn sm" data-pad="visit">'+IC.pen+(v.gink?'تعديل الكتابة':kb?'بالقلم':'كتابة بالقلم')+'</button></div><p class="muted" style="margin:6px 0 0;font-size:14px">نفسها في كل البطاقات</p>'+
+    (kb?'<textarea class="inp" data-gnote rows="3" style="margin-top:12px" placeholder="اكتب ملاحظاتك العامة هنا">'+esc(v.gnote||'')+'</textarea>':'')+
+    (v.gink?'<img class="inkthumb" style="margin-top:12px;max-width:100%;height:auto;max-height:180px" src="'+v.gink+'">':'');
+  if(ins.ink||String(ins.note||'').trim())h+='<div class="oldgn"><div class="oldgnh">ملاحظات سابقة على هذي البطاقة</div>'+(String(ins.note||'').trim()?'<p>'+esc(ins.note).replace(/\n/g,'<br>')+'</p>':'')+(ins.ink?'<img class="inkthumb" style="max-width:100%;height:auto;max-height:180px" src="'+ins.ink+'">':'')+'</div>';
+  return h+'</div>';}
 function itemHTML(c,ins,i){const it=c.items[i],r=ins.items[i]||{};
   let h='<section class="item" id="it'+i+'" data-i="'+i+'"><div class="ihead"><span class="inum">'+(i+1)+'</span><span class="icode">المؤشر <b>'+esc(it.code)+'</b></span>'+(r.skip&&!levelOf(it,r)?'<span class="pill warn skipflag">متخطاة</span>':'')+'</div><p class="itext">'+esc(it.t)+'</p>';
   if(it.note)h+='<p class="note">'+esc(it.note)+'</p>';
@@ -1347,6 +1355,7 @@ function afterFill(){const app=$('#app'),v=DB.visits[S.vid],c=CARD[S.cid],ins=cu
       if(cur.indexOf(t.dataset.phr)<0)r.note=cur?cur.replace(/[،.\s]+$/,'')+'، '+t.dataset.phr:t.dataset.phr;if(ta)ta.value=r.note;usePhrase(t.dataset.phr);touch(v,true);return;}
     if(t.dataset.jump!==undefined){const j=+t.dataset.jump;if(DB.settings.mode==='step'){jump(j)}else{const el=j===-1?$('#metaCard'):$('#it'+j);el&&el.scrollIntoView({behavior:'smooth'})}return;}
     if(t.dataset.pad==='ins'){openPad(ins.ink,img=>{ins.ink=img;touch(v);const y=window.scrollY;render();window.scrollTo(0,y);});return;}
+    if(t.dataset.pad==='visit'){openPad(v.gink,img=>{if(img)v.gink=img;else delete v.gink;v.gu=Date.now();touch(v);const y=window.scrollY;render();window.scrollTo(0,y);});return;}
     const sec=t.closest('.item');if(!sec)return;const i=+sec.dataset.i,it=c.items[i],r=rec(ins,i);
     if(t.dataset.pad==='item'){openPad(r.ink,img=>{r.ink=img;touch(v);const y=window.scrollY;render();window.scrollTo(0,y);});return;}
     if(t.dataset.evadd!==undefined){evAddModal(v,ins,i,-1);return;}
@@ -1364,6 +1373,7 @@ function afterFill(){const app=$('#app'),v=DB.visits[S.vid],c=CARD[S.cid],ins=cu
       if(t.dataset.meta==='grade'&&S.cid==='cls'){const gs=gradeStage(t.value);if(gs&&gs!==prevSt){setClsStage(v,ins,gs);touch(v);const y=window.scrollY;render();window.scrollTo(0,y);return;}}
       touch(v,true);return;}
     if(t.hasAttribute('data-insnote')){ins.note=t.value;touch(v,true);return;}
+    if(t.hasAttribute('data-gnote')){v.gnote=t.value;v.gu=Date.now();touch(v,true);return;}
     const sec=t.closest('.item');if(!sec)return;const i=+sec.dataset.i,it=c.items[i],r=rec(ins,i);
     if(t.hasAttribute('data-other')){const had=!!(r.other||'').trim();r.other=t.value;if(had!==!!t.value.trim()){if(levelOf(it,r))delete r.skip;refreshItem(sec,it,r);refreshProg(c,ins);}}
     else if(t.hasAttribute('data-note'))r.note=t.value;else if(t.hasAttribute('data-pct'))r.pct=t.value;
@@ -1470,8 +1480,12 @@ function paperHTML(v,cid,ins,idx){const c=CARD[cid],d=fmtDate(paperDate(v,cid,in
   else if(style==='table'){h+='<table class="sum"><thead><tr><th>م</th><th>المؤشر</th><th>الفقرة</th><th>الدرجة</th></tr></thead><tbody>'+c.items.map((it,i)=>{const r=ins.items[i],l=levelOf(it,r);cnt[l]++;return '<tr><td class="n">'+(i+1)+'</td><td class="code">'+esc(it.code)+'</td><td>'+esc(it.t)+ex(it,r)+'</td><td class="s">'+(l?l+' – '+LV[l]:'<span style="color:#B23A3A">لم تُرصد</span>')+'</td></tr>'}).join('')+'</tbody></table>';}
   else{h+=c.items.map((it,i)=>{const r=ins.items[i],l=levelOf(it,r);cnt[l]++;return '<div class="q"><div class="qt"><span>'+(i+1)+'.</span><span style="flex:1">'+esc(it.t)+'</span><span class="c">'+esc(it.code)+'</span></div><div class="opts">'+[1,2,3,4].map(k=>'<div class="opt'+(l===k?' sel':'')+'"><span class="o"></span>متحقق بدرجة '+LV[k]+'.</div>').join('')+'</div>'+(l?'':'<div class="unset">لم تُرصد الدرجة</div>')+ex(it,r)+'</div>'}).join('');}
   h+='<div class="stats">'+[4,3,2,1].map(k=>'<span>'+LV[k]+': <b>'+cnt[k]+'</b></span>').join('')+(cnt[0]?'<span style="color:#B23A3A">غير مرصودة: <b>'+cnt[0]+'</b></span>':'')+'</div>';
-  if(extra&&String(ins.note||'').trim())h+='<div class="gnote"><b>ملاحظات عامة للزيارة:</b> '+esc(ins.note).replace(/\n/g,'<br>')+'</div>';
-  if(extra&&ins.ink)h+='<div style="margin-top:12px;font-weight:600">ملاحظات عامة للزيارة'+(String(ins.note||'').trim()?' (بخط اليد)':'')+'</div><img class="inkfull" src="'+ins.ink+'">';
+  if(extra){const gn=String(v.gnote||'').trim();
+    if(gn)h+='<div class="gnote"><b>ملاحظات عامة للزيارة:</b> '+esc(v.gnote).replace(/\n/g,'<br>')+'</div>';
+    if(v.gink)h+=(gn?'':'<div style="margin-top:12px;font-weight:600">ملاحظات عامة للزيارة</div>')+'<img class="inkfull" src="'+v.gink+'">';
+    /* القديمة اللي على البطاقة نفسها */
+    if(String(ins.note||'').trim())h+='<div class="gnote"><b>ملاحظات:</b> '+esc(ins.note).replace(/\n/g,'<br>')+'</div>';
+    if(ins.ink)h+='<div style="margin-top:12px;font-weight:600">ملاحظات بخط اليد</div><img class="inkfull" src="'+ins.ink+'">';}
   h+='</div>';return h;}
 function vSum(){const v=DB.visits[S.vid],T=sumTargets(),st=DB.settings.sumStyle,sj=S.subj||[];
   const title=sj.length?'مختصر '+sj.join(' و'):S.all?'مختصر الزيارة كاملة':('مختصر '+CARD[S.cid].short);
@@ -2075,6 +2089,7 @@ function visitHash(v){const c=Object.assign({},v);delete c.updated;return hsh(c)
 /* دمج نسختين من نفس الزيارة: كل بطاقة الأحدث يمشي، والمحذوف يبقى محذوف، وبيانات المدرسة من الأحدث */
 function mergeVisit(L,R){const out=L;const ga=Object.assign({},R.goneAuto||{},L.goneAuto||{});const gone=Object.assign({},R.gone||{},L.gone||{});Object.keys(R.gone||{}).forEach(k=>{gone[k]=Math.max(gone[k]||0,R.gone[k]);});
   if((R.hu||0)>(L.hu||0)){HDR.forEach(k=>{if(R[k]===undefined)delete out[k];else out[k]=R[k];});out.hu=R.hu;}
+  /* ملاحظات عامة للزيارة: الأحدث يمشي */if((R.gu||0)>(L.gu||0)){['gnote','gink'].forEach(k=>{if(R[k]===undefined)delete out[k];else out[k]=R[k];});out.gu=R.gu;}
   const bak=[];const cids={};Object.keys(L.cards||{}).concat(Object.keys(R.cards||{})).forEach(c=>cids[c]=1);out.cards=out.cards||{};
   Object.keys(cids).forEach(cid=>{const A=(L.cards||{})[cid]||[],B=(R.cards||{})[cid]||[],res=A.slice();
     B.forEach(rb=>{const i=res.findIndex(x=>x.id===rb.id);if(i<0){res.push(rb);return;}const la=res[i],nu=x=>{const c=Object.assign({},x);delete c.u;return canon(c)};if(nu(la)===nu(rb)){if((rb.u||0)>(la.u||0))la.u=rb.u;return;}
@@ -2092,6 +2107,7 @@ function mergeVisit(L,R){const out=L;const ga=Object.assign({},R.goneAuto||{},L.
 function absorbLocal(rv){const k=norm(rv.srcSchool||rv.school);const dup=Object.values(DB.visits).filter(x=>x.id!==rv.id&&!(DB.synced||{})[x.id]&&norm(x.srcSchool||x.school)===k&&x.date===rv.date);
   dup.forEach(x=>{Object.keys(x.cards||{}).forEach(cid=>{const R=(rv.cards[cid]=rv.cards[cid]||[]);(x.cards[cid]||[]).forEach(ins=>{if(!insHasData(cid,ins))return;
       const j=ins.src?R.findIndex(y=>y.src===ins.src):-1;if(j>=0&&!insHasData(cid,R[j])){ins.id=R[j].id;R[j]=ins;}else if(j<0)R.push(ins);else{ins.u=Date.now();ins.id=uid();R.push(ins);}});});
+    /* ملاحظات الزيارة العامة اللي انكتبت على الجهاز قبل الدخول ما تضيع */if(((x.gu||0)>(rv.gu||0))&&(String(x.gnote||'').trim()||x.gink)){rv.gnote=x.gnote;rv.gink=x.gink;if(rv.gink===undefined)delete rv.gink;if(rv.gnote===undefined)delete rv.gnote;rv.gu=x.gu;}
     delete DB.visits[x.id];if(DB.stamps)delete DB.stamps[x.id];});return dup.length;}
 /* ---------- المزامنة ---------- */
 const PART=800000;
