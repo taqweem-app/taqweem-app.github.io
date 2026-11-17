@@ -1139,7 +1139,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='124 · 7 جمادى الآخرة 1448 هـ 17:02';
+const BUILD='126 · 7 جمادى الآخرة 1448 هـ 17:19';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -1829,6 +1829,8 @@ function sheetSync(){/* جدول جوجل القديم انتهى: الحصص ك
 /* حصص جديدة وصلت (من اللوحة أو الشيت): تنطبق بهدوء وتنحفظ الدرجات */
 function incomingApply(o){try{coStore(o)}catch(e){}
     const keepA=g=>{const v=findVisitFor(g);return !(v&&v.deleted);};const diff=schedDiff(o,true,keepA);
+    /* نحفظ اسم المعلم وهويته مثل ما هي في الجدول لكل حصة، حتى لو ما فيه تغيير */
+    let st=false;diff.forEach(d=>d.same.forEach(x=>{const s0={teacher:x.meta.teacher||'',nid:x.meta.nid||''},c0=x.ins.sched0||{};if(c0.teacher!==s0.teacher||c0.nid!==s0.nid){x.ins.sched0=s0;st=true;}}));if(st)saveNow();
     if(!diff.some(d=>d.add.length||d.upd.length||d.rem.length))return;
     const locked=[];diff.forEach(({g,rem})=>rem.forEach(x=>{if(insHasData('cls',x))locked.push(g.school+' - '+(x.meta.period?'الحصة '+x.meta.period+': ':'')+clsLabel(x));}));
     const res=applySchedule(o,true,null,keepA,{});
@@ -2351,13 +2353,15 @@ function extraSettings(){const on=remindOn(),np=window.Notification?Notification
 /* ---------- تغيير المعلم (غياب/بديل): العضو يأكد، ويوصل طلب للوحة وتتطبق لحالها عند منشئ التطبيق ---------- */
 function chgCtx(){if(S.v!=='fill'||S.cid!=='cls'||!acct()||isLegacyAcct())return null;const v=DB.visits[S.vid],ins=typeof curIns==='function'?curIns():null;return v&&ins&&ins.src?{v,ins}:null;}
 let chgT=null;
+/* الاسم والهوية مثل ما كانت قبل ما يبدأ يعدّل هالمرة (في الذاكرة بس). تنمسح بعد ما يأكد أو يلغي */
+const EDIT0={};
 document.addEventListener('focusin',e=>{const t=e.target;if(!t.dataset||(t.dataset.meta!=='teacher'&&t.dataset.meta!=='nid'))return;clearTimeout(chgT);const c=chgCtx();if(!c)return;const m=c.ins.meta||{};
-  if(!c.ins.orig0)c.ins.orig0={teacher:m.teacher||'',nid:m.nid||''};});
+  if(!EDIT0[c.ins.id])EDIT0[c.ins.id]={teacher:m.teacher||'',nid:m.nid||''};});
 document.addEventListener('focusout',e=>{const t=e.target;if(!t.dataset||(t.dataset.meta!=='teacher'&&t.dataset.meta!=='nid'))return;clearTimeout(chgT);
   chgT=setTimeout(()=>{const a=document.activeElement;if(a&&a.dataset&&(a.dataset.meta==='teacher'||a.dataset.meta==='nid'))return;chgAsk();},700);});
-/* «من»: اسم المعلم وهويته مثل ما هي في الجدول نفسه (sched0)، ولو الحصة قديمة قبل هالتحديث نرجع للي انحفظ أول ما ضغط الخانة */
-function chgAsk(){const c=chgCtx();if(!c)return;const {v,ins}=c,m=ins.meta||{},o=ins.sched0||ins.orig0||{},sent=ins.chgSent||{};
-  const nt=(m.teacher||'').trim(),nn=(m.nid||'').trim();if(!nt)return;if(nt===(o.teacher||'').trim()&&nn===(o.nid||'').trim())return;if(sent.teacher===nt&&sent.nid===nn)return;
+/* «من»: الاسم والهوية مثل ما كانت قبل ما يبدأ يعدّل، ولو ما فيه نرجع للي في الجدول نفسه (sched0) */
+function chgAsk(){const c=chgCtx();if(!c)return;const {v,ins}=c,m=ins.meta||{},o=EDIT0[ins.id]||ins.sched0||{},sent=ins.chgSent||{},done=()=>{delete EDIT0[ins.id];};
+  const nt=(m.teacher||'').trim(),nn=(m.nid||'').trim();if(!nt)return;if(nt===(o.teacher||'').trim()&&nn===(o.nid||'').trim())return done();if(sent.teacher===nt&&sent.nid===nn)return done();
   /* غيّر اسم المعلم وخلى رقم الهوية نفسه: غالبًا نسي يغيّره */
   if(o.nid&&nn===String(o.nid).trim()&&norm(nt)!==norm(o.teacher||'')&&ins.nidOk!==nt){
     modal('<h3>رقم الهوية ما تغيّر</h3><p>غيّرت اسم المعلم من <b>'+esc(o.teacher||'—')+'</b> إلى <b>'+esc(nt)+'</b>، بس رقم الهوية باقي نفسه: <b>'+esc(nn)+'</b>.</p><p>إذا هذا معلم ثاني، غيّر رقم هويته.</p><div class="acts"><button class="btn primary" id="niFix">أغيّر رقم الهوية</button><button class="btn ghost" id="niOk">الرقم صحيح، خله زي ما هو</button></div>','nudge');
@@ -2366,9 +2370,9 @@ function chgAsk(){const c=chgCtx();if(!c)return;const {v,ins}=c,m=ins.meta||{},o
   const was=(o.teacher||'').trim(),line=(t,n)=>'<b>'+esc(t)+'</b>'+(n?' (رقم الهوية '+esc(n)+')':'');
   modal('<h3>'+(was?'تغيّر المعلم؟':'إضافة اسم المعلم؟')+'</h3><p>الحصة '+esc(m.period||'')+' · '+esc(clsLabel(ins))+'<br>'+(was?'من: '+line(was,o.nid)+'<br>إلى: '+line(nt,nn):'المعلم: '+line(nt,nn))+'</p><p>تأكد إن الاسم ورقم الهوية صحيحة. إذا أكدت، يوصل لمنشئ التطبيق ويتعدّل عند اللي معك في الحصة.</p><p class="rerr" id="chE"></p><div class="acts"><button class="btn primary" id="chY">تأكيد التغيير</button><button class="btn ghost" id="chN">إلغاء</button></div>','nudge');
   /* إلغاء: يرجع الاسم ورقم الهوية مثل ما كانت */
-  $('#chN').onclick=()=>{m.teacher=o.teacher||'';m.nid=o.nid||'';const ed=ins.metaEdited||{};delete ed.teacher;delete ed.nid;delete ins.nidOk;touch(v);closeModal(false,()=>{const y=window.scrollY;render();window.scrollTo(0,y);});};
+  $('#chN').onclick=()=>{done();m.teacher=o.teacher||'';m.nid=o.nid||'';const ed=ins.metaEdited||{};delete ed.teacher;delete ed.nid;delete ins.nidOk;touch(v);closeModal(false,()=>{const y=window.scrollY;render();window.scrollTo(0,y);});};
   $('#chY').onclick=async()=>{const body=JSON.stringify({k:'chg',src:ins.src,school:v.school||'',day:ins.day||'',period:m.period||'',subj:clsLabel(ins),old:{teacher:o.teacher||'',nid:o.nid||''},teacher:nt,nid:nn});
-    ins.chgSent={teacher:nt,nid:nn};saveNow();
+    ins.chgSent={teacher:nt,nid:nn};done();saveNow();
     if(navigator.onLine===false){chgQueue(body);closeModal();toast('انحفظ التغيير، ويوصل لمنشئ التطبيق أول ما يتصل النت');return;}
     $('#chY').disabled=true;$('#chE').textContent='لحظة…';
     try{await chgSend(body);closeModal();toast('وصل التغيير لمنشئ التطبيق ✓');}
@@ -2567,7 +2571,7 @@ if(APP_TARGET==='old'){setTimeout(forwardNew,800);setInterval(forwardNew,30e3);w
    - الحصص تنزل للزيارات عن طريق نفس نظام الحصص الموجود (schedDiff / applySchedule)، بمصدر مميّز «my:»،
      فالدمج ومنع التكرار وحفظ التقييمات هي نفسها المجرّبة.
    - الميزة مقفلة إلا على حسابات التجربة أو لو فعّلها منشئ التطبيق من السيرفر (cfg/flags). */
-const PLAN_TEST=['0500000001@taqweem.app'];
+const PLAN_TEST=['0500000001@taqweem.app','hossam@taqweem.app'];
 /* حد البحث في التوزيع بعدد الخطوات (مو بالوقت) عشان النتيجة تكون نفسها على كل جهاز */
 let PLAN_NODES=30000;
 const PLAN_WD=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'];
