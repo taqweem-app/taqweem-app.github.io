@@ -1139,7 +1139,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='121 · 7 جمادى الآخرة 1448 هـ 16:49';
+const BUILD='122 · 7 جمادى الآخرة 1448 هـ 16:54';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -1313,7 +1313,7 @@ function vFill(){const v=DB.visits[S.vid],c=CARD[S.cid],ins=curIns();if(!ins){S=
   return h+'</div>';}
 /* ملاحظات عامة للزيارة: وحدة للزيارة كلها (v.gnote كتابة، v.gink قلم)، تطلع نفسها في كل البطاقات والحصص.
    الملاحظات العامة القديمة اللي انكتبت على بطاقة لحالها (ins.ink / ins.note) تبقى زي ما هي وتطلع تحتها */
-function insPadBlock(ins){const v=DB.visits[S.vid]||{},kb=evOnSafe()||!!String(v.gnote||'').trim();
+function insPadBlock(ins){const v=DB.visits[S.vid]||{},kb=true;
   let h='<div class="panel"><div class="row"><h3 style="flex:1;margin:0">ملاحظات عامة للزيارة</h3><button class="btn sm" data-pad="visit">'+IC.pen+(v.gink?'تعديل الكتابة':kb?'بالقلم':'كتابة بالقلم')+'</button></div><p class="muted" style="margin:6px 0 0;font-size:14px">نفسها في كل البطاقات</p>'+
     (kb?'<textarea class="inp" data-gnote rows="3" style="margin-top:12px" placeholder="اكتب ملاحظاتك العامة هنا">'+esc(v.gnote||'')+'</textarea>':'')+
     (v.gink?'<img class="inkthumb" style="margin-top:12px;max-width:100%;height:auto;max-height:180px" src="'+v.gink+'">':'');
