@@ -561,6 +561,7 @@ body:has(#instAsk) #gate .gcard,body:has(#instG) #gate .gcard{visibility:hidden}
 .fe.fink{grid-column:1/-1}.fe .evink{min-width:0;flex:1 1 auto;width:auto;max-width:calc(100% - 70px);object-fit:contain;object-position:right center}
 .evtag{flex:none;font-size:12px;font-weight:600;color:var(--ink3);border:1px solid var(--line);border-radius:999px;padding:2px 9px;background:var(--card)}
 .othint{color:#9A6B12;font-weight:600}.fohint{font-size:13px;margin-top:4px}.othint[hidden]{display:none}
+.more .othint{font-size:14px;margin-top:6px}
 </style></head>
 <body><div id="app"></div><div id="printRoot"></div>
 <noscript>فعّل JavaScript في المتصفح.</noscript>
@@ -1135,7 +1136,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='115 · 7 جمادى الآخرة 1448 هـ 16:23';
+const BUILD='116 · 7 جمادى الآخرة 1448 هـ 16:29';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -1313,7 +1314,7 @@ function itemHTML(c,ins,i){const it=c.items[i],r=ins.items[i]||{};
   if(it.note)h+='<p class="note">'+esc(it.note)+'</p>';
   if(it.q)h+='<details class="qs" open><summary>الأسئلة الموجهة ('+it.q.length+')</summary><ol>'+it.q.map(q=>'<li>'+esc(q)+'</li>').join('')+'</ol></details>';
   if(it.b==='pct')h+='<label class="f">النسبة المئوية<input class="inp" data-pct inputmode="decimal" value="'+esc(r.pct||'')+'" placeholder="مثال: 95" style="max-width:200px"></label>';
-  else h+='<div class="evs">'+it.ev.map((e,k)=>{const on=(r.ev||[]).includes(k);return '<button class="ev'+(on?' on':'')+'" data-ev="'+k+'"><span class="bx">'+IC.check+'</span><span>'+esc(e)+'</span></button>'}).join('')+addRowsFill(r)+'</div>'+(evOnSafe()?'<button class="btn evadd" data-evadd>'+IC.plus+'أضف شاهد</button>':'')+(showOther(r)?'<div class="more"><label class="f">شواهد أخرى <span class="opt othint" data-othint'+(String(r.other||'').trim()?'':' hidden')+'>للتوثيق، ما تنحسب في الدرجة</span><textarea class="inp" data-other rows="2" placeholder="اكتب أو استخدم القلم من الكيبورد">'+esc(r.other||'')+'</textarea></label></div>':'');
+  else h+='<div class="evs">'+it.ev.map((e,k)=>{const on=(r.ev||[]).includes(k);return '<button class="ev'+(on?' on':'')+'" data-ev="'+k+'"><span class="bx">'+IC.check+'</span><span>'+esc(e)+'</span></button>'}).join('')+addRowsFill(r)+'</div>'+(evOnSafe()?'<button class="btn evadd" data-evadd>'+IC.plus+'أضف شاهد</button>':'')+(showOther(r)?'<div class="more"><label class="f">شواهد أخرى<textarea class="inp" data-other rows="2" placeholder="اكتب أو استخدم القلم من الكيبورد">'+esc(r.other||'')+'</textarea></label><div class="othint" data-othint'+(String(r.other||'').trim()?'':' hidden')+'>ملاحظة: الشواهد الأخرى ما تنحسب في الدرجة</div></div>':'');
   h+='<div class="scorebox" data-score>'+scoreInner(it,r)+'</div>';
   h+='<div class="more"><label class="f">ملاحظة على الفقرة<textarea class="inp" data-note rows="2">'+esc(r.note||'')+'</textarea></label><div class="inkrow"><button class="btn sm" data-pad="item">'+IC.pen+(r.ink?'تعديل الكتابة':'ملاحظة بالقلم')+'</button>'+(r.ink?'<img class="inkthumb" src="'+r.ink+'">':'')+'</div></div></section>';
   return h;}
@@ -1326,7 +1327,7 @@ function formItemHTML(c,ins,i,stat){const it=c.items[i],r=ins.items[i]||{},l=lev
   if(it.q)h+='<div class="frow"><div class="flab">الأسئلة الموجهة</div><div class="fbody"><ul class="fq">'+it.q.map(q=>'<li>'+esc(q)+'</li>').join('')+'</ul></div></div>';
   if(it.b==='pct')h+='<div class="frow"><div class="flab">النسبة</div><div class="fbody">'+(stat?esc(r.pct||'—')+'%':'<input class="inp" data-pct inputmode="decimal" value="'+esc(r.pct||'')+'" style="max-width:180px" placeholder="مثال: 95">')+'</div></div>';
   else h+='<div class="frow"><div class="flab">الشواهد الدالة</div><div class="fbody fev">'+it.ev.map((e,k)=>{const on=(r.ev||[]).includes(k);return stat?'<div class="fe'+(on?' on':'')+'"><span class="fb">'+(on?'☑':'☐')+'</span>'+esc(e)+'</div>':'<button class="fe'+(on?' on':'')+'" data-ev="'+k+'"><span class="fb">'+IC.check+'</span><span>'+esc(e)+'</span></button>'}).join('')+addRowsForm(r,stat)+(!stat&&evOnSafe()?'<button class="fe fadd" data-evadd>'+IC.plus+'<span>أضف شاهد</span></button>':'')+'</div></div>';
-  if(it.b!=='pct'&&(stat?String(r.other||'').trim()||!evOnSafe():showOther(r)))h+='<div class="frow"><div class="flab">شواهد أخرى</div><div class="fbody">'+(stat?'<div class="fdots">'+esc(r.other||'')+'</div>':'<textarea class="fother" data-other rows="1" placeholder="…………………………………">'+esc(r.other||'')+'</textarea><div class="othint fohint" data-othint'+(String(r.other||'').trim()?'':' hidden')+'>للتوثيق، ما تنحسب في الدرجة</div>')+'</div></div>';
+  if(it.b!=='pct'&&(stat?String(r.other||'').trim()||!evOnSafe():showOther(r)))h+='<div class="frow"><div class="flab">شواهد أخرى</div><div class="fbody">'+(stat?'<div class="fdots">'+esc(r.other||'')+'</div>':'<textarea class="fother" data-other rows="1" placeholder="…………………………………">'+esc(r.other||'')+'</textarea><div class="othint fohint" data-othint'+(String(r.other||'').trim()?'':' hidden')+'>ملاحظة: الشواهد الأخرى ما تنحسب في الدرجة</div>')+'</div></div>';
   if(!stat)h+='<div class="frow"><div class="flab">ملاحظة</div><div class="fbody fnoterow"><textarea class="fother" data-note rows="1" placeholder="اختياري">'+esc(r.note||'')+'</textarea><button class="btn sm" data-pad="item">'+IC.pen+(r.ink?'تعديل':'بالقلم')+'</button>'+(r.ink?'<img class="inkthumb" src="'+r.ink+'">':'')+'</div></div>';
   else if((r.note||'').trim()||r.ink)h+='<div class="frow"><div class="flab">ملاحظة</div><div class="fbody">'+esc(r.note||'')+(r.ink?'<img class="inkthumb" src="'+r.ink+'">':'')+'</div></div>';
   return h+'</section>';}
