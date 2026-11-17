@@ -521,6 +521,13 @@ body.glock #app{filter:blur(18px);opacity:.35;pointer-events:none;user-select:no
 .instg2 .ism{font-size:14px;opacity:.7;margin:10px 0 0;text-align:center}.instg2 .iw{background:#FFF3DC;border-radius:12px;padding:10px;margin:0 0 10px}
 .instg2 .ibig{width:100%;font-size:20px;padding:14px;margin-top:6px}
 body:has(#instAsk) #gate .gcard,body:has(#instG) #gate .gcard{visibility:hidden}
+.modal.plmodal{max-width:680px}
+.plday{margin:10px 0}.plday>b{display:block;color:var(--green,#123F31);margin-bottom:4px}
+.plrow{display:flex;align-items:center;gap:8px;width:100%;text-align:right;background:var(--card);border:1px solid var(--line,#E3D3AE);border-radius:12px;padding:10px 12px;margin-top:5px;font:inherit;color:inherit}
+.plrow i{font-style:normal;font-weight:700;min-width:58px;color:#87672F}.plrow span{flex:1;min-width:0}.plrow.act{background:#E8F1EC}.plrow.bad{border-color:#B23A3A;background:#FDE2D6}
+.plm{background:#123F31;color:#F3E6C4;border-radius:999px;padding:2px 10px;font-weight:700;white-space:nowrap}.plm.none{background:#B8860B;color:#fff}
+.plwarn{background:#FDE2D6;color:#7A2222;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14px;line-height:1.7}
+.plchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.plchip{border:1.5px solid var(--line,#D8CBAE);background:var(--card);border-radius:999px;padding:8px 14px;font:inherit;font-weight:700;color:inherit}.plchip.on{background:#123F31;color:#F3E6C4;border-color:#123F31}
 </style></head>
 <body><div id="app"></div><div id="printRoot"></div>
 <noscript>فعّل JavaScript في المتصفح.</noscript>
@@ -992,7 +999,7 @@ function vHome(){
   const trashN=Object.values(DB.visits).filter(v=>v.deleted).length,nm=(typeof acct==='function'&&acct()?(DB.settings.name||'').trim().split(/\s+/)[0]:'')||'',td=fmtDate(today());
   let h='<section class="hero"><div class="pat"></div><div class="in"><div class="tools"><span class="brand">'+IC.shield.replace('<svg','<svg width="18" height="18"')+'<b>بطاقات التقويم</b> '+(typeof acct==='function'&&acct()?'محفوظة في حسابك':'على هذا الجهاز فقط')+'</span><span class="row"><span id="savedInd" class="saved"></span>'+(canInstall()?'<button class="bbtn wide" onclick="installApp()">'+IC.save+'تثبيت التطبيق</button>':'')+'<button class="bbtn wide" onclick="guide()">'+IC.info+'طريقة الاستخدام</button><button class="bbtn" onclick="go({v:\'settings\'})" aria-label="الإعدادات">'+IC.gear+'</button></span></div>';
   h=h.replace('<button class="bbtn wide" onclick="guide()">','<button class="bbtn" onclick="stepFont(-1)" aria-label="تصغير الخط" title="تصغير الخط"><b style="font-size:15px;line-height:1;white-space:nowrap">أ−</b></button><button class="bbtn" onclick="stepFont(1)" aria-label="تكبير الخط" title="تكبير الخط"><b style="font-size:17px;line-height:1;white-space:nowrap">أ+</b></button><button class="bbtn wide" onclick="guide()">');
-  h+='<h1>حيّاك الله'+(nm?' يا أستاذ '+esc(nm):'')+'</h1><div class="date">اليوم '+esc(td.w)+'، <b>'+esc(td.h)+'</b></div><div class="acts"><button class="btn gold" onclick="newVisit()">'+IC.plus+'زيارة جديدة</button>'+'<button class="btn onfolio" onclick="fetchSheet()">'+IC.save+(DB.settings.lastSync?'تحديث الحصص':'جيب الحصص')+'</button>'+(DB.settings.lastSync?'<span class="muted" style="font-size:12px;align-self:center">آخر تحديث '+esc(new Date(DB.settings.lastSync).toLocaleString('ar-SA-u-nu-latn',{day:'numeric',month:'numeric',hour:'numeric',minute:'2-digit'}))+' · نسخة #'+(DB.settings.syncVer||1)+'</span>':'')+'<span class="muted" id="cloudInd" style="font-size:12px;align-self:center">'+cloudBadge()+'</span>'+subBadge()+(()=>{if(!vs.length||todayList().length)return '';const lv=vs.slice().sort((x,y)=>(y.updated||0)-(x.updated||0))[0];return '<button class="btn onfolio" onclick="go({v:\'visit\',vid:\''+lv.id+'\'})">متابعة '+esc(lv.school||'آخر زيارة')+'</button>';})()+'</div></div></section><div class="wrap">';
+  h+='<h1>حيّاك الله'+(nm?' يا أستاذ '+esc(nm):'')+'</h1><div class="date">اليوم '+esc(td.w)+'، <b>'+esc(td.h)+'</b></div><div class="acts"><button class="btn gold" onclick="newVisit()">'+IC.plus+'زيارة جديدة</button>'+'<button class="btn onfolio" onclick="fetchSheet()">'+IC.save+(DB.settings.lastSync?'تحديث الحصص':'جيب الحصص')+'</button>'+(typeof planBtn==='function'?planBtn():'')+(DB.settings.lastSync?'<span class="muted" style="font-size:12px;align-self:center">آخر تحديث '+esc(new Date(DB.settings.lastSync).toLocaleString('ar-SA-u-nu-latn',{day:'numeric',month:'numeric',hour:'numeric',minute:'2-digit'}))+' · نسخة #'+(DB.settings.syncVer||1)+'</span>':'')+'<span class="muted" id="cloudInd" style="font-size:12px;align-self:center">'+cloudBadge()+'</span>'+subBadge()+(()=>{if(!vs.length||todayList().length)return '';const lv=vs.slice().sort((x,y)=>(y.updated||0)-(x.updated||0))[0];return '<button class="btn onfolio" onclick="go({v:\'visit\',vid:\''+lv.id+'\'})">متابعة '+esc(lv.school||'آخر زيارة')+'</button>';})()+'</div></div></section><div class="wrap">';
   h+=storageBanner(false);
   h+=(typeof moveBanner==='function'?moveBanner():'');
   h+=newsBanner();
@@ -1088,7 +1095,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='79 · 7 جمادى الآخرة 1448 هـ 02:43';
+const BUILD='87 · 7 جمادى الآخرة 1448 هـ 14:29';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -1518,6 +1525,7 @@ const SUBJ_ALIAS={'اسلاميه':'الدراسات الإسلامية','درا
 function mapSubj(x,stage){const b=bare(x),L=SUBJ[stage]||SUBJ.p;if(!b)return '';if(b==='لغتي'||b==='لغتي خالده'||b==='لغه عربيه')return stage==='m'?'لغتي الخالدة':stage==='s'?'اللغة العربية':'لغتي';
   const al=SUBJ_ALIAS[b];if(al)return al;const hit=L.find(s=>bare(s)===b)||L.find(s=>bare(s).includes(b)||b.includes(bare(s)));return hit||x.trim();}
 function mapGrade(g,stage){g=String(g||'').trim();if(!g)return '';return /(ابتدائ|متوسط|ثانوي)/.test(g)?g:g+' '+(STG_SFX[stage]||'');}
+function isMySrc(k){return String(k||'').indexOf('my:')===0;}
 function isMine(members,me){return (members||[]).includes('*')||(members||[]).some(m=>norm(m)===norm(me));}
 function schedPlan(o,mineOnly){const me=o.for||DB.settings.name||'';const by={};
   /* نفس المدرسة لو تكررت زيارتها بعد أكثر من ١٠ أيام تصير زيارة ثانية مستقلة */
@@ -1537,7 +1545,7 @@ function grpStatus(o,mine){const st={};schedDiff(o,mine,null).forEach(({g,v,add,
   if(!v){st[k]={s:'new',n:g.rows.length};return;}
   if(v.deleted){st[k]={s:'del',n:g.rows.length};return;}
   let n=add.length+upd.length+rem.filter(x=>!insHasData('cls',x)).length;
-  const meta=g.days.some(d=>{const e=(v.schedDays||[]).find(y=>y.iso===d.iso);return !e||(d.acts&&JSON.stringify(e.acts||null)!==JSON.stringify(d.acts));})||(v.schedDays||[]).some(x=>!g.days.some(d=>d.iso===x.iso)&&!instances(v,'cls').some(i=>insIso(v,i)===x.iso&&insHasData('cls',i)))||(g.st&&v.schedStage!==g.st&&!v.stageEdited);
+  const meta=g.days.some(d=>{const e=(v.schedDays||[]).find(y=>y.iso===d.iso);return !e||(d.acts&&JSON.stringify(e.acts||null)!==JSON.stringify(d.acts));})||(v.schedDays||[]).some(x=>(!!x.my===!!o.my)&&!g.days.some(d=>d.iso===x.iso)&&!instances(v,'cls').some(i=>insIso(v,i)===x.iso&&insHasData('cls',i)))||(g.st&&v.schedStage!==g.st&&!v.stageEdited);
   st[k]={s:n||meta?'upd':'same',n};});return st;}
 function schedPreview(o){let mine=true,team=true,pick=null;const t0=today(),gk=g=>g.key;
   const isPast=g=>{const ds=g.days.map(d=>d.iso).filter(Boolean);return ds.length&&ds.every(i=>i<t0);};const me=o.for||DB.settings.name||'',single=!!o.for;
@@ -1593,7 +1601,8 @@ function schedDiff(o,mine,keep){const out=[];normalizeStages();
       if(!ins){add.push(it);return}
       used.add(ins.id);it.ins=it.ins||ins;const ed=ins.metaEdited||{};
       it.ch=Object.keys(meta).filter(k=>!ed[k]&&(ins.meta[k]||'')!==(meta[k]||''));(it.ch.length?upd:same).push(it);});
-    const rem=L.filter(x=>x.src&&!used.has(x.id));
+    /* كل مصدر (منشئ التطبيق / جدول سوّاه المشترك بنفسه «my:») يحذف حصصه هو بس، وما يلمس حصص المصدر الثاني */
+    const rem=L.filter(x=>x.src&&!used.has(x.id)&&isMySrc(x.src)===!!o.my);
     out.push({g,v,add,upd,same,rem});});
   return out;}
 function applySchedule(o,mine,roster,keep,dec){dec=dec||{};const skipAdd=dec.skipAdd||new Set(),skipUpd=dec.skipUpd||new Set(),rem=dec.rem||new Set();
@@ -1605,7 +1614,7 @@ function applySchedule(o,mine,roster,keep,dec){dec=dec||{};const skipAdd=dec.ski
     if(v&&v.deleted)delete v.deleted;
     if(!v){v={id:uid(),school:g.school,srcSchool:g.school,date:g.days[0].iso||today(),stage:g.stage,cards:{},src:'sched',created:Date.now(),updated:Date.now()};if(g.st)v.schedStage=g.st;DB.visits[v.id]=v;newV++;}
     v.srcSchool=v.srcSchool||g.school;
-    const keepOld=(v.schedDays||[]).filter(x=>!g.days.some(d=>d.iso===x.iso)&&(instances(v,'cls').some(i=>insIso(v,i)===x.iso&&insHasData('cls',i))));const sd=g.days.map(d=>{const ex=(v.schedDays||[]).find(x=>x.iso===d.iso);return Object.assign({},ex||{},d,{acts:d.acts||(ex&&ex.acts)});}).concat(keepOld);sd.sort((a,b)=>(a.iso||'').localeCompare(b.iso||''));v.schedDays=sd;
+    const keepOld=(v.schedDays||[]).filter(x=>!g.days.some(d=>d.iso===x.iso)&&((!!x.my!==!!o.my)||instances(v,'cls').some(i=>insIso(v,i)===x.iso&&insHasData('cls',i))));const sd=g.days.map(d=>{const ex=(v.schedDays||[]).find(x=>x.iso===d.iso),mix=ex&&(!!ex.my!==!!o.my);const r=Object.assign({},ex||{},d,{acts:mix?[...new Set((ex.acts||[]).concat(d.acts||[]))]:(d.acts||(ex&&ex.acts))});if(ex?(ex.my&&o.my):o.my)r.my=true;else delete r.my;return r;}).concat(keepOld);sd.sort((a,b)=>(a.iso||'').localeCompare(b.iso||''));v.schedDays=sd;
     if(sd[0]&&sd[0].iso&&!v.dateEdited)v.date=sd[0].iso;
     const L=instances(v,'cls');
     const stamp=x=>{x.ins.src=x.key;x.ins.day=x.d.dayName+' '+x.d.date;if(x.iso)x.ins.iso=x.iso;};
@@ -1961,7 +1970,7 @@ function cloudLogout(){
     if(DB.acct&&!DB.owner)DB.owner=DB.acct.uid;
     if(wipe){/* كل شي تأكدنا إنه في الحساب: نمسحه من الجهاز بس. شغل أي حساب ثاني محفوظ جانبًا على الجهاز ما يتأثر */
       const keep=DB.settings||{},nb=blank();['theme','fz','mode'].forEach(k=>{if(keep[k]!=null)nb.settings[k]=keep[k]});
-      DB.visits={};DB.synced={};DB.stamps={};DB.purged={};DB.syncBak=[];DB.settings=nb.settings;DB.owner=null;DB.lastK=null;DB.sub=null;try{localStorage.removeItem('tq_ck');localStorage.removeItem('tq_ckAt')}catch(e){}
+      DB.visits={};DB.synced={};DB.stamps={};DB.purged={};DB.syncBak=[];DB.plans={};DB.settings=nb.settings;DB.owner=null;DB.lastK=null;DB.sub=null;try{localStorage.removeItem('tq_ck');localStorage.removeItem('tq_ckAt')}catch(e){}
       try{localStorage.removeItem('taqweem_view')}catch(e){}}
     else if(DB.acct&&DB.acct.k)DB.lastK={uid:DB.acct.uid,k:DB.acct.k,u:DB.acct.u};
     DB.acct=null;DB.sub=null;cloudTok=null;saveNow();try{await idbPut(JSON.stringify(DB))}catch(e){}
@@ -2167,7 +2176,7 @@ function coKey(day,per,nid,teacher){return String(day||'')+'|'+String(per||'')+'
 function coStore(o){if(!o||!Array.isArray(o.days))return;const M={};let any=false;
   o.days.forEach(d=>(d.periods||[]).forEach(p=>(p.rows||[]).forEach(r=>{if(Array.isArray(r.co)&&r.co.length){any=true;const c=r.co.map(String);M[coKey(d.dayName+' '+d.date,p.name,r.nid,r.teacher)]=c;M['@'+d.id+'/'+r.id]=c}})));
   DB.settings.coMap=any?M:{};saveNow();}
-function coOf(ins){const M=DB.settings.coMap;if(!M||!ins)return [];if(ins.src&&M['@'+ins.src])return M['@'+ins.src];const m=ins.meta||{};return M[coKey(ins.day,m.period,m.nid,m.teacher)]||[];}
+function coOf(ins){if(ins&&isMySrc(ins.src)&&typeof planCo==='function')return planCo(ins);const M=DB.settings.coMap;if(!M||!ins)return [];if(ins.src&&M['@'+ins.src])return M['@'+ins.src];const m=ins.meta||{};return M[coKey(ins.day,m.period,m.nid,m.teacher)]||[];}
 function coTxt(ins){const c=coOf(ins);return c.length?'معك: '+c.join('، '):'';}
 
 /* ---------- جدولي هذا الأسبوع (داخل ملخص الأسبوع) ---------- */
@@ -2229,7 +2238,7 @@ function noteBox(){if(!acct())return toast('سجّل دخول أول');
 
 /* ---------- رسالة منشئ التطبيق للكل ---------- */
 let newsAt=0;
-async function newsFetch(){if(!acct()||navigator.onLine===false||Date.now()-newsAt<5*60e3)return;newsAt=Date.now();supFetch();moveFetch();ckFetch();
+async function newsFetch(){if(!acct()||navigator.onLine===false||Date.now()-newsAt<5*60e3)return;newsAt=Date.now();supFetch();moveFetch();ckFetch();if(typeof flagFetch==='function')flagFetch();
   try{const d=await fsReq('GET','/cfg/news');const o=d?UF(d.fields):{t:'',ts:0};const was=JSON.stringify(DB.settings.news||null);DB.settings.news={t:String(o.t||''),ts:+o.ts||0};
     if(JSON.stringify(DB.settings.news)!==was){saveNow();if(S.v==='home')render();}}catch(e){}}
 function newsBanner(){const n=DB.settings.news;if(!n||!n.t||(DB.settings.newsSeen||0)>=n.ts)return '';
@@ -2438,4 +2447,271 @@ async function forwardNew(){if(APP_TARGET!=='old'||fwdBusy||location.protocol===
     if(cloudState==='ok'){const v=await verifySynced();if(v.ok){saveNow();fwdScreen('ready');return;}}fwdScreen('fail');}
   catch(e){fwdScreen('fail');}finally{fwdBusy=false;}}
 if(APP_TARGET==='old'){setTimeout(forwardNew,800);setInterval(forwardNew,30e3);window.addEventListener('online',()=>setTimeout(forwardNew,2000));}
+
+/* ================= جدول حصص يسويه المشترك بنفسه («جدول مدرسة») =================
+   - الجدول ينحفظ في DB.plans (لكل حساب لحاله، وينعزل مع تبديل الحسابات مثل باقي البيانات).
+   - الحصص تنزل للزيارات عن طريق نفس نظام الحصص الموجود (schedDiff / applySchedule)، بمصدر مميّز «my:»،
+     فالدمج ومنع التكرار وحفظ التقييمات هي نفسها المجرّبة.
+   - الميزة مقفلة إلا على حسابات التجربة أو لو فعّلها منشئ التطبيق من السيرفر (cfg/flags). */
+const PLAN_TEST=['0500000001@taqweem.app'];
+/* حد البحث في التوزيع بعدد الخطوات (مو بالوقت) عشان النتيجة تكون نفسها على كل جهاز */
+let PLAN_NODES=30000;
+const PLAN_WD=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'];
+function planOn(){try{if(!acct())return false;const e=acctEmail();return PLAN_TEST.indexOf(e)>=0||!!(DB.settings.flags&&DB.settings.flags.plan)}catch(e){return false}}
+async function flagFetch(){try{if(!acct()||navigator.onLine===false)return;const d=await fsReq('GET','/cfg/flags');const o=d?UF(d.fields):{};const f={plan:o.plan===true||o.plan==='all'};
+  if(JSON.stringify(f)!==JSON.stringify(DB.settings.flags||{})){DB.settings.flags=f;saveNow();if(S.v==='home')render();}}catch(e){}}
+function planBtn(){return planOn()?'<button class="btn onfolio" id="planBtn" onclick="planHome()">'+IC.plus+'جدول مدرسة</button>':'';}
+function plans(){return (DB.plans=DB.plans||{});}
+const pDig=s=>String(s==null?'':s).replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c));
+const pTrim=s=>String(s==null?'':s).replace(/\s+/g,' ').trim();
+function planH(iso){const h=toH(iso);return h.d+' / '+h.m+' / '+h.y+' هـ';}
+function planDays(pl){const out=[];let d=pl.start;for(let k=0;out.length<5&&k<9;k++,d=addDays(pl.start,k)){const w=new Date(d+'T12:00:00').getDay();if(w===5||w===6)continue;out.push(d);}return out;}
+function planDayLbl(iso){const g=new Date(iso+'T12:00:00');return fmtDate(iso).w+' '+g.getDate()+'/'+(g.getMonth()+1);}
+function planMe(pl){return pTrim(pl.me||DB.settings.name)||'أنا';}
+function planRowLbl(r){return r.t==='a'?'نشاط: '+r.text:[r.subject,[r.grade,r.section].filter(Boolean).join(' ')].filter(Boolean).join(' · ')+(r.teacher?' · '+r.teacher:'');}
+
+/* ---------- تحويل الجدول لصيغة نظام الحصص ---------- */
+function planToSched(pl){const me=planMe(pl),by={};pl.rows.forEach(r=>{(by[r.iso]=by[r.iso]||[]).push(r)});
+  const days=Object.keys(by).sort().map(iso=>{const rs=by[iso],ps=[];
+    rs.filter(r=>r.t==='v').sort((a,b)=>perIdx(a.p)-perIdx(b.p)).forEach(r=>{let p=ps.find(x=>x.name===r.p);if(!p)ps.push(p={name:r.p,rows:[]});
+      p.rows.push({id:r.id,t:'v',subject:r.subject,grade:r.grade,section:r.section,teacher:r.teacher,nid:r.nid,members:pl.solo?['*']:(r.m||[]).slice()});});
+    const acts=rs.filter(r=>r.t==='a'&&(pl.solo||isMine(r.m,me))).map(r=>pTrim(r.text)).filter(Boolean);
+    return {id:'my:'+pl.id+':'+iso,dayName:fmtDate(iso).w,date:planH(iso),school:pl.school,stage:pl.stage,acts:[...new Set(acts)],periods:ps};});
+  return {my:true,for:me,roster:pl.solo?[me]:pl.team.slice(),days};}
+/* «معك: فلان» للحصص اللي من جدولي */
+function planCo(ins){try{const m=String(ins.src||'').match(/^my:([^:]+):([^/]+)\/(.+)$/);if(!m)return [];const pl=plans()[m[1]];if(!pl||pl.solo)return [];const r=pl.rows.find(x=>x.id===m[3]);if(!r)return [];
+  const me=planMe(pl),L=(r.m||[]).includes('*')?pl.team:(r.m||[]);return L.filter(x=>norm(x)!==norm(me));}catch(e){return []}}
+
+/* ---------- التحقق من سطر ---------- */
+function planCheck(pl,r,skipId){const rows=pl.rows.filter(x=>x.id!==skipId);
+  if(!r.iso||planDays(pl).indexOf(r.iso)<0)return 'اختر اليوم';if(PERIODS.indexOf(r.p)<0)return 'اختر الحصة';
+  if(r.t==='a'){if(!pTrim(r.text))return 'اكتب اسم النشاط';if(rows.some(x=>x.t==='a'&&x.iso===r.iso&&x.p===r.p&&norm(x.text)===norm(r.text)))return 'هذا النشاط موجود في نفس الحصة';return '';}
+  if(!pTrim(r.subject))return 'اختر المادة';if(!pTrim(r.grade))return 'اختر الصف';if(!pTrim(r.teacher))return 'اكتب اسم المعلم';
+  if(r.nid&&!/^\d{10}$/.test(r.nid))return 'السجل المدني لازم 10 أرقام';
+  const V=rows.filter(x=>x.t==='v');
+  const dup=V.find(x=>x.iso===r.iso&&x.p===r.p&&norm(x.grade)===norm(r.grade)&&norm(x.section)===norm(r.section));if(dup)return 'هذا الفصل موجود في نفس الحصة: '+planRowLbl(dup);
+  if(r.nid){const o=V.find(x=>x.nid===r.nid&&norm(x.teacher)!==norm(r.teacher));if(o)return 'هذا السجل المدني مكتوب للمعلم «'+o.teacher+'»';}
+  const tt=V.find(x=>x.iso===r.iso&&x.p===r.p&&norm(x.teacher)===norm(r.teacher));if(tt)return 'المعلم «'+r.teacher+'» عنده فصل ثاني بنفس الحصة';
+  if(!pl.solo){const mine=(r.m||[]),same=V.filter(x=>x.iso===r.iso&&x.p===r.p);
+    for(const x of same){const xm=x.m||[];if((mine.includes('*')&&xm.length)||(xm.includes('*')&&mine.length))return 'ما يصير «الفريق كامل» مع حصة ثانية بنفس الوقت';const hit=mine.find(n=>xm.some(y=>norm(y)===norm(n)));if(hit)return hit+' عنده حصة ثانية بنفس الوقت: '+planRowLbl(x);}}
+  return '';}
+/* كل مشاكل الجدول (للمراجعة قبل الحفظ ولملف الإكسل) */
+function planIssues(pl){const out=[];pl.rows.forEach(r=>{const e=planCheck(pl,r,r.id);if(e)out.push({id:r.id,t:planDayLbl(r.iso)+' · '+r.p+': '+e});});
+  /* التعارضات تطلع مرتين (لكل طرف)، نخليها مرة */const seen=new Set();return out.filter(x=>{const k=x.t.replace(/^[^:]+: /,'');if(seen.has(k))return false;seen.add(k);return true});}
+
+/* ---------- التوزيع التلقائي (برمجي، نفس النتيجة كل مرة) ---------- */
+function planIsEn(s){const n=norm(s);return /انجليز|english/.test(n)||n==='e';}
+function planCore(s){return /رياضيات|علوم|لغتي|عربي/.test(norm(s));}
+function planSubjKey(s){const n=bare(s);return /لغتي|عربي/.test(n)?'لغتي':n;}
+function planDistribute(pl){const T=pl.team.slice(),n=T.length,si=T.findIndex(x=>norm(x)===norm(pl.sup||''));if(n<2)return {ok:false};
+  const days=[...new Set(pl.rows.filter(r=>r.t==='v').map(r=>r.iso))].sort(),prevSub=T.map(()=>new Set()),rep={days:[],left:[]};
+  days.forEach(iso=>{const rows=pl.rows.filter(r=>r.t==='v'&&r.iso===iso),pers=[...new Set(rows.map(r=>r.p))].sort((a,b)=>perIdx(a)-perIdx(b)),byP=pers.map(p=>rows.filter(r=>r.p===p));
+    /* خيارات كل حصة: لكل عضو رقم الفصل أو -1. الفصل لعضو واحد، إلا المشرف مع عضو واحد (حضور مشترك). الإنجليزي للمشرف بس لو فيه مشرف */
+    const opts=byP.map(R=>{const out=[],a=new Array(n).fill(-1);(function rec(i){if(i===n){const used={};let joint=0,bad=false;for(let m=0;m<n;m++){const c=a[m];if(c<0)continue;(used[c]=used[c]||[]).push(m);}
+          Object.keys(used).forEach(c=>{const L=used[c];if(L.length>2||(L.length===2&&(si<0||L.indexOf(si)<0)))bad=true;if(L.length===2)joint++;});if(bad||joint>1)return;out.push(a.slice());return;}
+        for(let c=-1;c<R.length;c++){if(c>=0&&si>=0&&i!==si&&planIsEn(R[c].subject))continue;a[i]=c;rec(i+1);}a[i]=-1;})(0);
+      out.forEach(o=>{o.cv=new Set(o.filter(c=>c>=0)).size;});out.sort((x,y)=>y.cv-x.cv||y.filter(c=>c>=0).length-x.filter(c=>c>=0).length);return out;});
+    let best=null,bestS=-1e9;const pick=[],sub=T.map(()=>new Set()),tch=T.map(()=>new Set());let nodes=0;
+    const score=()=>{let s=0;const cnt=new Array(n).fill(0),teach=new Set(),jn=new Array(n).fill(0);let cov=0;
+      pick.forEach((o,k)=>{const R=byP[k],seenC=new Set();o.forEach((c,m)=>{if(c<0)return;cnt[m]++;teach.add(norm(R[c].teacher));if(!seenC.has(c)){seenC.add(c);cov++;}
+          if(prevSub[m].has(planSubjKey(R[c].subject)))s-=6;});
+        if(si>=0&&o[si]>=0)o.forEach((c,m)=>{if(m!==si&&c===o[si]){jn[m]++;s+=(jn[m]===1?100+(planCore(R[c].subject)?5:0)+(8-perIdx(pers[k])):-40);}});
+        /* الإنجليزي اللي ما أخذه المشرف يبقى بدون أحد، وهذا أسوأ من أي شي */if(si>=0)R.forEach((r,c)=>{if(planIsEn(r.subject)&&o[si]!==c)s-=60;});});
+      return s+12*teach.size+4*cov-4*(Math.max.apply(null,cnt)-Math.min.apply(null,cnt));};
+    (function dfs(k){if(k===byP.length){nodes++;const s=score();if(s>bestS){bestS=s;best=pick.map(o=>o.slice());}return;}
+      if(++nodes>PLAN_NODES)return;const R=byP[k];
+      for(const o of opts[k]){if(nodes>PLAN_NODES)return;let ok=true;const addS=[],addT=[];
+        for(let m=0;m<n&&ok;m++){const c=o[m];if(c<0)continue;const sk=planSubjKey(R[c].subject),tk=norm(R[c].teacher);if(sub[m].has(sk)||tch[m].has(tk))ok=false;}
+        if(!ok)continue;o.forEach((c,m)=>{if(c<0)return;const sk=planSubjKey(R[c].subject),tk=norm(R[c].teacher);sub[m].add(sk);tch[m].add(tk);addS.push([m,sk]);addT.push([m,tk]);});
+        pick.push(o);dfs(k+1);pick.pop();addS.forEach(([m,x])=>sub[m].delete(x));addT.forEach(([m,x])=>tch[m].delete(x));}})(0);
+    const cnt=T.map(()=>0);rows.forEach(r=>{r.m=[]});
+    (best||[]).forEach((o,k)=>o.forEach((c,m)=>{if(c<0)return;const r=byP[k][c];if(r.m.indexOf(T[m])<0)r.m.push(T[m]);cnt[m]++;prevSub[m].add(planSubjKey(r.subject));}));
+    const covT=new Set(rows.filter(r=>r.m.length).map(r=>norm(r.teacher)));
+    rows.filter(r=>!r.m.length).forEach(r=>rep.left.push({iso,r,seen:covT.has(norm(r.teacher))}));
+    rep.days.push({iso,cnt,total:rows.length,done:rows.filter(r=>r.m.length).length});});
+  pl.rows.filter(r=>r.t==='a'&&!(r.m||[]).length).forEach(r=>{r.m=['*']});
+  pl.updated=Date.now();rep.ok=true;return rep;}
+
+/* ---------- قراءة ملف الإكسل (نموذج جدول الحصص) ---------- */
+function xlsxCells(buf){const z=fflate.unzipSync(new Uint8Array(buf)),dec=new TextDecoder(),xml=n=>z[n]?new DOMParser().parseFromString(dec.decode(z[n]),'application/xml'):null;
+  const ss=[],sx=xml('xl/sharedStrings.xml');if(sx)Array.from(sx.getElementsByTagName('si')).forEach(si=>{ss.push(Array.from(si.getElementsByTagName('t')).map(t=>t.textContent).join(''))});
+  const name=Object.keys(z).filter(k=>/^xl\/worksheets\/sheet\d+\.xml$/.test(k)).sort((a,b)=>parseInt(a.match(/\d+/)[0])-parseInt(b.match(/\d+/)[0]))[0],sh=xml(name);if(!sh)throw new Error('sheet');
+  const cells={};let maxR=0;Array.from(sh.getElementsByTagName('c')).forEach(c=>{const ref=c.getAttribute('r'),t=c.getAttribute('t'),v=c.getElementsByTagName('v')[0],is=c.getElementsByTagName('is')[0];let val='';
+    if(t==='s')val=ss[+(v&&v.textContent)]||'';else if(t==='inlineStr')val=is?Array.from(is.getElementsByTagName('t')).map(x=>x.textContent).join(''):'';else if(v){val=v.textContent;if(t!=='str'&&t!=='b'&&t!=='e'&&val!==''&&!isNaN(val))val=+val;}
+    if(val!==''&&ref){cells[ref]=val;const r=+ref.replace(/[A-Z]+/,'');if(r>maxR)maxR=r;}});
+  return {get:(col,row)=>{const v=cells[String.fromCharCode(64+col)+row];return v==null?'':v},maxR};}
+function xlsDate(v){if(typeof v==='number'&&v>20000&&v<80000){const d=new Date(Math.round((v-25569)*864e5));return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');}
+  const m=pDig(v).match(/(\d{1,2})\s*[\/\-.]\s*(\d{1,2})\s*[\/\-.]\s*(\d{4})/);if(m)return m[3]+'-'+String(+m[2]).padStart(2,'0')+'-'+String(+m[1]).padStart(2,'0');const k=pDig(v).match(/(\d{4})-(\d{2})-(\d{2})/);return k?k[0]:'';}
+function planParseXlsx(buf){const X=xlsxCells(buf),S1=v=>pTrim(String(v).split('\n')[0]),out={school:'',stage:'',start:'',rows:[],warn:[]};
+  const LAB=['اسم المدرسة','المرحلة','الرقم الوزاري','إدارة التعليم','تاريخ أول يوم بالزيارة'],info={};
+  for(let r=1;r<=Math.min(X.maxR,40);r++)for(let c=1;c<=12;c++){const k=pTrim(X.get(c,r));if(LAB.indexOf(k)<0)continue;for(let cc=c+1;cc<=c+3;cc++){const x=X.get(cc,r);if(x!==''&&LAB.indexOf(pTrim(x))<0){info[k]=x;break;}}}
+  out.school=pTrim(info['اسم المدرسة']||'');out.stage={'ابتدائي':'p','متوسط':'m','ثانوي':'s'}[pTrim(info['المرحلة']||'')]||'';out.start=xlsDate(info['تاريخ أول يوم بالزيارة']);out.code=pDig(pTrim(info['الرقم الوزاري']||''));
+  let hr=0;for(let r=1;r<=X.maxR;r++)if(S1(X.get(2,r))==='اليوم'&&S1(X.get(3,r))==='الحصة')hr=r;if(!hr)throw new Error('notpl');
+  const H={};for(let c=1;c<=15;c++){const h=S1(X.get(c,hr));if(h)H[h]=c;}const g=(r,h)=>H[h]?pTrim(X.get(H[h],r)):'';
+  if(!out.school)out.warn.push('اسم المدرسة ناقص');if(!out.stage)out.warn.push('المرحلة ناقصة');if(!out.start)out.warn.push('تاريخ أول يوم بالزيارة ناقص أو غلط');
+  const sw=out.start?new Date(out.start+'T12:00:00').getDay():0;
+  for(let r=hr+1;r<=X.maxR;r++){const day=g(r,'اليوم'),p=g(r,'الحصة'),typ=g(r,'النوع'),sub=g(r,'المادة أو النشاط'),tch=g(r,'اسم المعلم');if(!day&&!p&&!typ&&!sub&&!tch)continue;
+    const wi=PLAN_WD.indexOf(day);let iso='';if(wi>=0&&out.start)iso=addDays(out.start,((wi-sw)%7+7)%7);
+    if(wi<0){out.warn.push('سطر '+r+': اليوم ناقص أو غلط');continue;}if(PERIODS.indexOf(p)<0){out.warn.push('سطر '+r+': الحصة ناقصة');continue;}
+    const mem=g(r,'عضو الفريق'),M=!mem?[]:(/كامل/.test(mem)||mem==='الكل'||mem==='الجميع')?['*']:mem.split(/\s*(?:\+|،|,|\/)\s*/).map(pTrim).filter(Boolean);
+    if(typ==='نشاط'){if(!sub){out.warn.push('سطر '+r+': اسم النشاط ناقص');continue;}out.rows.push({t:'a',iso,p,text:sub,m:M,line:r});continue;}
+    const row={t:'v',iso,p,subject:sub,grade:g(r,'الصف').replace(/\s*(الابتدائي|المتوسط|الثانوي)$/,''),section:g(r,'الفصل'),teacher:tch,nid:pDig(g(r,'السجل المدني')).replace(/\s/g,''),m:M,line:r};
+    if(!row.subject||!row.grade||!row.teacher){out.warn.push('سطر '+r+': ناقص (المادة أو الصف أو المعلم)');continue;}
+    if(row.nid&&!/^\d{10}$/.test(row.nid)){out.warn.push('سطر '+r+': السجل المدني «'+row.nid+'» مو 10 أرقام، وانشال');row.nid='';}
+    out.rows.push(row);}
+  out.dist=out.rows.some(r=>r.m.length);return out;}
+/* مطابقة أسماء الملف مع أسماء الفريق: ما نخمّن. الاسم اللي ما له مطابق واحد واضح يرجع في unknown */
+function planMatchNames(team,names){const map={},unknown=[];names.forEach(nm=>{const n=norm(nm),hit=team.filter(t=>{const x=norm(t);return x===n||x.split(' ')[0]===n||x.indexOf(n+' ')===0||(' '+x+' ').indexOf(' '+n+' ')>=0});if(hit.length===1)map[nm]=hit[0];else unknown.push(nm);});return {map,unknown};}
+const planKey=r=>r.t==='a'?['a',r.iso,r.p,norm(r.text)].join('|'):['v',r.iso,r.p,norm(r.grade),norm(r.section)].join('|');
+/* الفرق بين الجدول الحالي وملف مرفق: جديد / متغيّر / مو موجود في الملف */
+function planDiffRows(pl,rows){const cur={};pl.rows.forEach(r=>{cur[planKey(r)]=r});const seen=new Set(),add=[],upd=[];
+  rows.forEach(r=>{const k=planKey(r),o=cur[k];if(seen.has(k))return;seen.add(k);if(!o){add.push(r);return;}
+    const ch=r.t==='a'?[]:['subject','teacher','nid'].filter(f=>pTrim(o[f])!==pTrim(r[f])&&(f!=='nid'||r.nid));const mch=r.m.length&&JSON.stringify(r.m.slice().sort())!==JSON.stringify((o.m||[]).slice().sort());
+    if(ch.length||mch)upd.push({o,r,ch,mch});});
+  return {add,upd,gone:pl.rows.filter(r=>!seen.has(planKey(r)))};}
+
+/* ---------- الشاشات ---------- */
+let PL=null;
+function planSave(){if(!PL)return;PL.updated=Date.now();plans()[PL.id]=PL;saveNow();}
+function planHome(){if(!planOn())return;const L=Object.values(plans()).sort((a,b)=>(b.start||'').localeCompare(a.start||''));
+  modal('<h3>جدول مدرسة</h3><p>جهّز جدول حصص مدرسة بنفسك: أضف الحصص بيدك أو أرفق ملف الإكسل، وتنزل حصصك في التطبيق.</p>'+
+    (L.length?'<div class="ways">'+L.map(p=>'<button class="way" data-pl="'+esc(p.id)+'"><b>'+esc(p.school||'بدون اسم')+'</b><span>'+esc(fmtDate(p.start).h)+' · '+p.rows.filter(r=>r.t==='v').length+' حصة'+(p.solo?'':' · فريق '+p.team.length)+(p.applied?'':' · <b style="color:#B8860B">مسودة ما انحفظت</b>')+'</span></button>').join('')+'</div>':'')+
+    '<div class="acts"><button class="btn primary" id="plNew">'+IC.plus+'جدول جديد</button><button class="btn ghost" onclick="closeModal()">إغلاق</button></div>','nudge');
+  $('#plNew').onclick=()=>planForm(null);document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>{PL=plans()[b.dataset.pl];planEdit();});}
+function planForm(pl){const isNew=!pl,me=pTrim(DB.settings.name),p=pl||{school:'',start:today(),stage:'p',solo:true,team:[me].filter(Boolean),sup:''};
+  const team=p.team.slice();
+  modal('<h3>'+(isNew?'جدول جديد':'بيانات الجدول')+'</h3><div class="fields"><label class="f" style="grid-column:1/-1">اسم المدرسة<input class="inp" id="pl_school" value="'+esc(p.school)+'" placeholder="مثال: ابتدائية الملك فهد"></label>'+
+    '<div class="f" style="grid-column:1/-1">'+hijriPicker(p.start).replace('تاريخ الزيارة','تاريخ أول يوم بالزيارة')+'</div>'+
+    '<label class="f">المرحلة<select class="inp" id="pl_stage">'+Object.entries(STAGES).map(([k,t])=>'<option value="'+k+'"'+(p.stage===k?' selected':'')+'>'+t+'</option>').join('')+'</select></label></div>'+
+    '<div class="seg" style="margin:12px 0 8px"><button id="pl_m1" class="'+(p.solo?'on':'')+'">لي أنا بس</button><button id="pl_m0" class="'+(!p.solo?'on':'')+'">لي ولفريقي</button></div>'+
+    '<div id="pl_team" style="display:'+(p.solo?'none':'block')+'"><label class="f">أسماء الفريق (كل اسم في سطر، واسمك أول واحد)<textarea class="inp" id="pl_names" rows="4">'+esc(team.join('\n'))+'</textarea></label>'+
+    '<label class="f" style="margin-top:8px">المشرف (اختياري: يحضر مع كل عضو مرة، والإنجليزي له)<select class="inp" id="pl_sup"></select></label></div>'+
+    '<p class="rerr" id="pl_err"></p><div class="acts"><button class="btn primary" id="pl_go">'+(isNew?'التالي':'حفظ')+'</button><button class="btn ghost" id="pl_x">إلغاء</button></div>','nudge');
+  let solo=p.solo;const names=()=>[...new Set($('#pl_names').value.split(/\n|،|,/).map(pTrim).filter(Boolean))];
+  const drawSup=()=>{const N=names(),cur=$('#pl_sup').value||p.sup||'';$('#pl_sup').innerHTML='<option value="">بدون مشرف</option>'+N.map(x=>'<option'+(norm(x)===norm(cur)?' selected':'')+'>'+esc(x)+'</option>').join('');};drawSup();$('#pl_names').onchange=drawSup;
+  $('#pl_m1').onclick=()=>{solo=true;$('#pl_m1').className='on';$('#pl_m0').className='';$('#pl_team').style.display='none';};
+  $('#pl_m0').onclick=()=>{solo=false;$('#pl_m0').className='on';$('#pl_m1').className='';$('#pl_team').style.display='block';drawSup();};
+  $('#pl_x').onclick=()=>{if(isNew)closeModal();else planEdit();};
+  $('#pl_go').onclick=()=>{const err=m=>{$('#pl_err').textContent=m},school=pTrim($('#pl_school').value),start=$('#f_date').value,stage=$('#pl_stage').value,N=solo?[me||'أنا']:names();
+    if(!school)return err('اكتب اسم المدرسة');if(!start)return err('اختر التاريخ');if(!solo&&N.length<2)return err('اكتب أسماء الفريق (اثنين أو أكثر)، أو اختر «لي أنا بس»');
+    const dupP=Object.values(plans()).find(x=>(!pl||x.id!==pl.id)&&norm(x.school)===norm(school)&&Math.abs(new Date(x.start+'T12:00')-new Date(start+'T12:00'))<=10*864e5);
+    if(dupP){PL=dupP;closeModal(true);planEdit();return toast('هذي المدرسة عندك جدولها من قبل، وفتحته لك');}
+    if(pl){if(pl.start!==start&&pl.rows.length){const d=Math.round((new Date(start+'T12:00')-new Date(pl.start+'T12:00'))/864e5);pl.rows.forEach(r=>{r.iso=addDays(r.iso,d)});}
+      Object.assign(pl,{school,start,stage,solo,team:N,sup:solo?'':$('#pl_sup').value,me:N[0]});if(!solo)pl.rows.forEach(r=>{r.m=(r.m||[]).filter(x=>x==='*'||N.some(y=>norm(y)===norm(x)))});PL=pl;planSave();return planEdit();}
+    PL={id:uid(),school,start,stage,solo,team:N,sup:solo?'':$('#pl_sup').value,me:N[0],rows:[],created:Date.now(),updated:Date.now(),applied:0};planSave();planEdit();};}
+function planEdit(){const pl=PL;if(!pl)return;const days=planDays(pl),iss=planIssues(pl),bad=new Set(iss.map(x=>x.id));
+  const chip=r=>pl.solo?'':'<small class="plm'+((r.m||[]).length?'':' none')+'">'+((r.m||[]).length?esc((r.m||[]).map(x=>x==='*'?'الفريق كامل':x.split(' ')[0]).join(' + ')):'بدون عضو')+'</small>';
+  const list=days.map(iso=>{const rs=pl.rows.filter(r=>r.iso===iso).sort((a,b)=>perIdx(a.p)-perIdx(b.p)||(a.t<b.t?1:-1));if(!rs.length)return '';
+    return '<div class="plday"><b>'+esc(planDayLbl(iso))+'</b>'+rs.map(r=>'<button class="plrow'+(r.t==='a'?' act':'')+(bad.has(r.id)?' bad':'')+'" data-r="'+esc(r.id)+'"><i>'+esc(r.p)+'</i><span>'+esc(planRowLbl(r))+'</span>'+chip(r)+'</button>').join('')+'</div>';}).join('');
+  const nV=pl.rows.filter(r=>r.t==='v').length;
+  modal('<h3>'+esc(pl.school)+'</h3><p class="muted" style="margin-top:-4px">'+esc(STAGES[pl.stage])+' · يبدأ '+esc(fmtDate(pl.start).w+' '+fmtDate(pl.start).h)+(pl.solo?' · لي أنا بس':' · الفريق: '+esc(pl.team.map(x=>x.split(' ')[0]).join('، '))+(pl.sup?' · المشرف: '+esc(pl.sup.split(' ')[0]):''))+' <a href="#" id="plInfo">تعديل</a></p>'+
+    '<div class="row" style="gap:8px;flex-wrap:wrap;margin:8px 0"><button class="btn primary sm" id="plAdd">'+IC.plus+'أضف حصة</button><button class="btn sm" id="plFile">'+IC.open+'أرفق ملف الإكسل</button>'+(pl.solo||!nV?'':'<button class="btn sm" id="plDist">وزّع تلقائي</button>')+'</div>'+
+    (iss.length?'<div class="plwarn"><b>يحتاج تصحيح ('+iss.length+')</b>'+iss.slice(0,6).map(x=>'<div>'+esc(x.t)+'</div>').join('')+'</div>':'')+
+    (list||'<p class="muted" style="margin:14px 0">ما فيه حصص للحين. اضغط «أضف حصة» أو «أرفق ملف الإكسل».</p>')+
+    '<div class="acts"><button class="btn gold" id="plGo"'+(pl.rows.length&&!iss.length?'':' disabled')+'>'+IC.check+'احفظ ونزّل حصصي</button>'+(pl.rows.length?'<button class="btn" id="plPdf">PDF</button><button class="btn" id="plXls">إكسل</button>':'')+'<button class="btn ghost" id="plDel">حذف الجدول</button><button class="btn ghost" onclick="closeModal()">إغلاق</button></div>'+
+    (pl.applied?'<p class="muted" style="font-size:12.5px;margin-top:6px">آخر حفظ: '+esc(new Date(pl.applied).toLocaleString('ar-SA-u-nu-latn',{day:'numeric',month:'numeric',hour:'numeric',minute:'2-digit'}))+(pl.updated>pl.applied+500?' · <b style="color:#B8860B">فيه تعديلات ما انحفظت</b>':'')+'</p>':''),'plmodal');
+  $('#plInfo').onclick=e=>{e.preventDefault();planForm(pl);};$('#plAdd').onclick=()=>planRow(null);$('#plFile').onclick=planPickFile;
+  const d=$('#plDist');if(d)d.onclick=planDistUI;const g=$('#plGo');if(g)g.onclick=planApply;const pp=$('#plPdf');if(pp)pp.onclick=planPDF;const px=$('#plXls');if(px)px.onclick=planXlsx;
+  $('#plDel').onclick=planDelete;document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>planRow(pl.rows.find(r=>r.id===b.dataset.r)));}
+function planRow(row){const pl=PL,days=planDays(pl),last=pl.rows[pl.rows.length-1],r=row||{t:'v',iso:(last&&last.iso)||days[0],p:(last&&last.p)||PERIODS[0],subject:'',grade:'',section:'',teacher:'',nid:'',text:'',m:[]};
+  const subs=SUBJ[pl.stage]||SUBJ.p,known=subs.indexOf(r.subject)>=0||!r.subject,tchs=[...new Map(pl.rows.filter(x=>x.t==='v'&&x.teacher).map(x=>[norm(x.teacher),x])).values()];
+  const sel=(id,L,cur,lab)=>'<select class="inp" id="'+id+'">'+L.map(x=>{const v=Array.isArray(x)?x[0]:x,t=Array.isArray(x)?x[1]:x;return '<option value="'+esc(v)+'"'+(v===cur?' selected':'')+'>'+esc(t)+'</option>'}).join('')+'</select>';
+  let typ=r.t,mem=(r.m||[]).slice();
+  modal('<h3>'+(row?'تعديل':'أضف حصة')+'</h3><div class="seg" style="margin:4px 0 10px"><button id="rt_v" class="'+(typ==='v'?'on':'')+'">حصة صفية</button><button id="rt_a" class="'+(typ==='a'?'on':'')+'">نشاط</button></div>'+
+    '<div class="fields"><label class="f">اليوم'+sel('r_iso',days.map(d=>[d,planDayLbl(d)]),r.iso)+'</label><label class="f">الحصة'+sel('r_p',PERIODS,r.p)+'</label></div>'+
+    '<div id="r_v" class="fields" style="margin-top:8px"><label class="f" style="grid-column:1/-1">المادة'+sel('r_sub',[['','اختر']].concat(subs.map(x=>[x,x])).concat([['__','مادة ثانية (اكتبها)']]),known?r.subject:'__')+'<input class="inp" id="r_sub2" style="margin-top:6px;display:'+(known?'none':'block')+'" placeholder="اكتب المادة" value="'+esc(known?'':r.subject)+'"></label>'+
+    '<label class="f">الصف'+sel('r_gr',[['','اختر']].concat((GRADES[pl.stage]||GRADES.p).map(x=>[x,x])),r.grade)+'</label><label class="f">الفصل<input class="inp" id="r_sec" value="'+esc(r.section)+'" placeholder="أ" list="r_secs"><datalist id="r_secs">'+['أ','ب','ج','د','هـ','1','2','3','4'].map(x=>'<option value="'+x+'">').join('')+'</datalist></label>'+
+    '<label class="f" style="grid-column:1/-1">اسم المعلم<input class="inp" id="r_tch" value="'+esc(r.teacher)+'" list="r_tchs" autocomplete="off"><datalist id="r_tchs">'+tchs.map(x=>'<option value="'+esc(x.teacher)+'">').join('')+'</datalist></label>'+
+    '<label class="f" style="grid-column:1/-1">السجل المدني (10 أرقام، اختياري)<input class="inp" id="r_nid" value="'+esc(r.nid)+'" inputmode="numeric" maxlength="12" autocomplete="off"></label></div>'+
+    '<div id="r_a" style="margin-top:8px"><label class="f">اسم النشاط<input class="inp" id="r_txt" value="'+esc(r.text||'')+'" list="r_acts" placeholder="مثال: ملاحظة البيئة التعليمية"><datalist id="r_acts">'+['ملاحظة البيئة التعليمية','مقابلة الطلاب','مقابلة المعلمين','مقابلة الموجه الطلابي','مقابلة الإدارة المدرسية','تحليل الوثائق','اجتماع الفريق للمداولة'].map(x=>'<option value="'+x+'">').join('')+'</datalist></label></div>'+
+    (pl.solo?'':'<div style="margin-top:10px"><span class="flab2">مين يحضرها؟</span><div class="plchips" id="r_mem"></div></div>')+
+    '<p class="rerr" id="r_err"></p><div class="acts"><button class="btn primary" id="r_ok">'+(row?'حفظ':'إضافة')+'</button>'+(row?'':'<button class="btn" id="r_ok2">إضافة وكمان وحدة</button>')+(row?'<button class="btn dangerfill" id="r_del">حذف</button>':'')+'<button class="btn ghost" id="r_x">رجوع</button></div>','nudge');
+  const show=()=>{$('#r_v').style.display=typ==='v'?'':'none';$('#r_a').style.display=typ==='a'?'':'none';$('#rt_v').className=typ==='v'?'on':'';$('#rt_a').className=typ==='a'?'on':'';};show();
+  $('#rt_v').onclick=()=>{typ='v';show()};$('#rt_a').onclick=()=>{typ='a';show()};
+  $('#r_sub').onchange=()=>{$('#r_sub2').style.display=$('#r_sub').value==='__'?'block':'none'};
+  $('#r_tch').addEventListener('input',()=>{const t=tchs.find(x=>norm(x.teacher)===norm($('#r_tch').value));if(t&&t.nid&&!$('#r_nid').value)$('#r_nid').value=t.nid;});
+  const drawM=()=>{const b=$('#r_mem');if(!b)return;b.innerHTML=pl.team.map(n=>'<button type="button" class="plchip'+(mem.some(x=>norm(x)===norm(n))?' on':'')+'" data-n="'+esc(n)+'">'+esc(n)+'</button>').join('')+'<button type="button" class="plchip'+(mem.includes('*')?' on':'')+'" data-n="*">الفريق كامل</button>';
+    b.querySelectorAll('[data-n]').forEach(x=>x.onclick=()=>{const n=x.dataset.n;if(n==='*')mem=mem.includes('*')?[]:['*'];else{mem=mem.filter(y=>y!=='*');const i=mem.findIndex(y=>norm(y)===norm(n));if(i>=0)mem.splice(i,1);else mem.push(n);}drawM();});};drawM();
+  const read=()=>{const sub=$('#r_sub').value==='__'?pTrim($('#r_sub2').value):$('#r_sub').value;return typ==='a'?{t:'a',iso:$('#r_iso').value,p:$('#r_p').value,text:pTrim($('#r_txt').value),m:mem.slice()}:{t:'v',iso:$('#r_iso').value,p:$('#r_p').value,subject:sub,grade:$('#r_gr').value,section:pTrim($('#r_sec').value),teacher:pTrim($('#r_tch').value),nid:pDig($('#r_nid').value).replace(/\D/g,''),m:mem.slice()};};
+  const save=again=>{const n=read(),e=planCheck(pl,n,row&&row.id);if(e){$('#r_err').textContent=e;return;}
+    if(row){Object.keys(row).forEach(k=>{if(k!=='id')delete row[k]});Object.assign(row,n);}else{n.id=uid();pl.rows.push(n);}planSave();if(again){planRow(null);toast('انضافت ✓');}else planEdit();};
+  $('#r_ok').onclick=()=>save(false);const o2=$('#r_ok2');if(o2)o2.onclick=()=>save(true);$('#r_x').onclick=planEdit;
+  const dl=$('#r_del');if(dl)dl.onclick=()=>{pl.rows.splice(pl.rows.indexOf(row),1);planSave();planEdit();};}
+function planDistUI(){const pl=PL;const had=pl.rows.some(r=>r.t==='v'&&(r.m||[]).length);
+  const run=()=>{modal('<h3>لحظة، أوزّع الحصص…</h3><p>أجرّب كل الاحتمالات عشان أطلع أفضل توزيع.</p>','nudge');setTimeout(run2,60);};
+  const run2=()=>{const rep=planDistribute(pl);planSave();const T=pl.team;
+    modal('<h3>نتيجة التوزيع</h3>'+rep.days.map(d=>'<div class="plday"><b>'+esc(planDayLbl(d.iso))+' · '+d.done+' من '+d.total+' حصة</b><div class="muted">'+T.map((n,i)=>esc(n.split(' ')[0])+': '+d.cnt[i]).join(' · ')+'</div></div>').join('')+
+      (rep.left.length?'<div class="plwarn"><b>حصص بدون أحد ('+rep.left.length+')</b>'+rep.left.map(x=>'<div>'+esc(planDayLbl(x.iso)+' · '+x.r.p+': '+planRowLbl(x.r))+(x.seen?' <small>(معلمها ينزار في حصة ثانية)</small>':' <small><b>(معلمها ما ينزار)</b></small>')+'</div>').join('')+'</div>':'<p class="safe">'+IC.shield+'<span>كل الحصص انغطّت.</span></p>')+
+      '<p class="muted" style="font-size:13px">تقدر تغيّر عضو أي حصة بالضغط عليها.</p><div class="acts"><button class="btn primary" id="dOk">تمام</button></div>','nudge');$('#dOk').onclick=planEdit;};
+  if(!had)return run();modal('<h3>توزيع من جديد؟</h3><p>التوزيع الحالي ينمسح ويتوزّع من جديد.</p><div class="acts"><button class="btn primary" id="dY">وزّع من جديد</button><button class="btn ghost" id="dN">إلغاء</button></div>','nudge');$('#dY').onclick=run;$('#dN').onclick=planEdit;}
+
+/* ---------- إرفاق ملف الإكسل ---------- */
+function planPickFile(){const i=document.createElement('input');i.type='file';i.accept='.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';i.onchange=()=>{const f=i.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>planGotFile(rd.result);rd.readAsArrayBuffer(f);};filePick(i);}
+function planGotFile(buf){const pl=PL;let F;try{F=planParseXlsx(buf)}catch(e){return toast(String(e&&e.message)==='notpl'?'هذا مو نموذج جدول الحصص. استخدم النموذج اللي أرسله منشئ التطبيق.':'ما قدرت أقرأ الملف. تأكد إنه ملف إكسل (xlsx).');}
+  if(!F.rows.length)return toast('الملف ما فيه حصص معبّاة.');
+  /* الجدول الفاضي ياخذ بيانات المدرسة من الملف */
+  const warn=F.warn.slice();if(!pl.rows.length){if(F.stage&&F.stage!==pl.stage)pl.stage=F.stage;}
+  else if(F.stage&&F.stage!==pl.stage)warn.unshift('مرحلة الملف ('+STAGES[F.stage]+') غير مرحلة الجدول ('+STAGES[pl.stage]+')');
+  if(F.school&&norm(F.school)!==norm(pl.school))warn.unshift('اسم المدرسة في الملف «'+F.school+'» غير اسم الجدول «'+pl.school+'»');
+  if(F.start&&F.start!==pl.start){if(!pl.rows.length){pl.start=F.start;}else warn.unshift('تاريخ أول يوم في الملف غير تاريخ الجدول');}
+  /* أسماء المواد من الملف تتحول لأسمائها في التطبيق (رياضيات ← الرياضيات) */
+  F.rows.forEach(r=>{if(r.t==='v'){const m=mapSubj(r.subject,pl.stage);if(m)r.subject=m;}});
+  const days=planDays(pl);F.rows=F.rows.filter(r=>{if(days.indexOf(r.iso)>=0)return true;warn.push('سطر '+r.line+': اليوم خارج أيام الزيارة');return false;});
+  /* أسماء الأعضاء */
+  const names=[...new Set([].concat.apply([],F.rows.map(r=>r.m)).filter(x=>x!=='*'))];
+  const go=map=>{F.rows.forEach(r=>{r.m=pl.solo?[]:[...new Set(r.m.map(x=>x==='*'?'*':map[x]).filter(Boolean))]});planFileReview(F,warn);};
+  if(pl.solo||!names.length)return go({});
+  const M=planMatchNames(pl.team,names);if(!M.unknown.length)return go(M.map);
+  modal('<h3>أسماء في الملف ما عرفتها</h3><p>اختر لكل اسم صاحبه من الفريق. ما أخمّن عنك.</p>'+M.unknown.map((n,k)=>'<label class="f" style="margin-top:8px">«'+esc(n)+'» هو:<select class="inp" data-un="'+k+'"><option value="">مو من الفريق (حصصه تبقى بدون عضو)</option>'+pl.team.map(t=>'<option>'+esc(t)+'</option>').join('')+'<option value="+">أضفه للفريق باسم «'+esc(n)+'»</option></select></label>').join('')+
+    '<div class="acts"><button class="btn primary" id="unOk">التالي</button><button class="btn ghost" id="unX">إلغاء</button></div>','nudge');
+  $('#unX').onclick=planEdit;$('#unOk').onclick=()=>{document.querySelectorAll('[data-un]').forEach(s=>{const n=M.unknown[+s.dataset.un];if(s.value==='+'){if(!pl.team.some(t=>norm(t)===norm(n)))pl.team.push(n);M.map[n]=n;}else if(s.value)M.map[n]=s.value;});go(M.map);};}
+function planFileReview(F,warn){const pl=PL,D=planDiffRows(pl,F.rows),first=!pl.rows.length;
+  const li=(L,f)=>L.slice(0,40).map(f).join('');
+  modal('<h3>مراجعة الملف</h3><p>'+(first?'لقيت <b>'+D.add.length+'</b> سطر في الملف.':'قارنت الملف بالجدول الحالي:')+'</p>'+
+    (warn.length?'<div class="plwarn"><b>تنبيهات ('+warn.length+')</b>'+warn.slice(0,12).map(w=>'<div>'+esc(w)+'</div>').join('')+'</div>':'')+
+    (D.add.length?'<div class="plday"><b>'+(first?'الحصص':'جديدة')+' ('+D.add.length+')</b>'+li(D.add,r=>'<div class="muted">'+esc(planDayLbl(r.iso)+' · '+r.p+' · '+planRowLbl(r))+(r.m.length?' ← '+esc(r.m.map(x=>x==='*'?'الفريق كامل':x.split(' ')[0]).join(' + ')):'')+'</div>')+'</div>':'')+
+    (D.upd.length?'<div class="plday"><b>متغيّرة ('+D.upd.length+')</b>'+li(D.upd,x=>'<div class="muted">'+esc(planDayLbl(x.r.iso)+' · '+x.r.p+' · '+planRowLbl(x.r))+'</div>')+'</div>':'')+
+    (D.gone.length?'<label class="chkl" style="margin-top:8px"><input type="checkbox" id="fGone"> احذف '+D.gone.length+' سطر موجود في الجدول ومو موجود في الملف</label>':'')+
+    (!D.add.length&&!D.upd.length&&!D.gone.length?'<p class="safe">'+IC.shield+'<span>الملف مطابق للجدول، ما فيه شي جديد.</span></p>':'')+
+    '<div class="acts"><button class="btn primary" id="fOk"'+(D.add.length||D.upd.length||D.gone.length?'':' disabled')+'>اعتمد</button><button class="btn ghost" id="fX">إلغاء</button></div>','nudge');
+  $('#fX').onclick=planEdit;$('#fOk').onclick=()=>{D.add.forEach(r=>{const n=Object.assign({},r,{id:uid()});delete n.line;pl.rows.push(n)});
+    D.upd.forEach(x=>{x.ch.forEach(f=>{x.o[f]=x.r[f]});if(x.mch)x.o.m=x.r.m.slice();});
+    const g=$('#fGone');if(g&&g.checked)D.gone.forEach(r=>{const i=pl.rows.indexOf(r);if(i>=0)pl.rows.splice(i,1)});planSave();planEdit();
+    const iss=planIssues(pl);toast(iss.length?'انضافت، وفيه '+iss.length+' سطر يحتاج تصحيح':'تمت الإضافة من الملف ✓');};}
+
+/* ---------- الحفظ: تنزيل حصصي في الزيارات ---------- */
+function planForeign(pl){const o=planToSched(pl);let hit=null;schedPlan(o,false).forEach(g=>{const v=findVisitFor(g);if(v&&!v.deleted&&v.planId!==pl.id&&instances(v,'cls').some(i=>i.src&&!isMySrc(i.src)))hit=v;});return hit;}
+function planApply(){const pl=PL;if(!pl)return;const iss=planIssues(pl);if(iss.length)return toast('صحّح الأسطر المعلّمة أول');
+  const fv=planForeign(pl);if(fv){return modal('<h3>هذي المدرسة موجودة عندك</h3><p>«'+esc(fv.school)+'» جتك حصصها من منشئ التطبيق في نفس الفترة. عشان ما تتكرر، افتحها وأضف الحصة الناقصة من داخلها.</p><div class="acts"><button class="btn primary" id="fvB">رجوع</button></div>','nudge'),$('#fvB').onclick=planEdit,void 0;}
+  const o=planToSched(pl);
+  if(!pl.solo&&!o.days.some(d=>d.periods.some(p=>p.rows.some(r=>isMine(r.members,o.for)))||d.acts.length)){/* ما له حصص هو: ينحفظ الجدول بس */}
+  const diff=schedDiff(o,true,null);
+  reviewChanges(diff,dec=>{const res=applySchedule(o,true,null,null,dec);res.touched.forEach(id=>{const v=DB.visits[id];if(v){v.planId=pl.id;touch(v)}});pl.applied=Date.now();pl.updated=pl.applied;plans()[pl.id]=pl;saveNow();closeModal('nav');go({v:'home'},true);
+    const mine=res.add+res.upd+res.del;toast(mine?'انحفظ الجدول: '+[res.add?'انضافت '+res.add:'',res.upd?'تحدّثت '+res.upd:'',res.del?'انحذفت '+res.del+' فاضية':''].filter(Boolean).join('، '):'انحفظ الجدول ✓');});}
+function planDelete(){const pl=PL;modal('<h3>حذف الجدول؟</h3><p>ينحذف الجدول، وتنحذف حصصه اللي ما بدأت فيها. الحصص اللي فيها تقييم تبقى عندك.</p><div class="acts"><button class="btn dangerfill" id="pdY">'+IC.trash+'حذف</button><button class="btn ghost" id="pdN">إلغاء</button></div>','nudge');
+  $('#pdN').onclick=planEdit;$('#pdY').onclick=()=>{if(pl.applied){const o=planToSched(pl);o.days.forEach(d=>{d.periods=[];d.acts=[]});try{applySchedule(o,true,null,null,{})}catch(e){}}
+    delete plans()[pl.id];PL=null;saveNow();closeModal('nav');go({v:'home'},true);toast('انحذف الجدول');};}
+
+/* ---------- التصدير ---------- */
+function planTable(pl){const days=planDays(pl).filter(iso=>pl.rows.some(r=>r.iso===iso)),td='border:1px solid #C9AF80;padding:6px 8px;text-align:center;font-size:13px',th=td+';background:#123F31;color:#F3E6C4;font-weight:700';
+  return days.map(iso=>{const rs=pl.rows.filter(r=>r.iso===iso).sort((a,b)=>perIdx(a.p)-perIdx(b.p)||(a.t<b.t?1:-1));
+    return '<div class="paper"><h2 style="font-family:var(--serif);text-align:center;margin:0 0 4px">جدول العمل اليومي · '+esc(pl.school)+'</h2><p style="text-align:center;margin:0 0 10px">'+esc(fmtDate(iso).w+' '+fmtDate(iso).h+' · '+fmtDate(iso).g+' م · '+STAGES[pl.stage])+'</p>'+
+      '<table style="width:100%;border-collapse:collapse"><tr>'+['الحصة','المادة','الصف','الفصل','المعلم','السجل المدني'].concat(pl.solo?[]:['عضو الفريق']).map(h=>'<th style="'+th+'">'+h+'</th>').join('')+'</tr>'+
+      rs.map(r=>r.t==='a'?'<tr><td style="'+td+';font-weight:700">'+esc(r.p)+'</td><td colspan="5" style="'+td+';background:#F6EFDE">'+esc(r.text)+'</td>'+(pl.solo?'':'<td style="'+td+'">'+esc((r.m||[]).map(x=>x==='*'?'الفريق كامل':x).join(' + '))+'</td>')+'</tr>'
+        :'<tr><td style="'+td+';font-weight:700">'+esc(r.p)+'</td><td style="'+td+'">'+esc(r.subject)+'</td><td style="'+td+'">'+esc(r.grade)+'</td><td style="'+td+'">'+esc(r.section)+'</td><td style="'+td+'">'+esc(r.teacher)+'</td><td style="'+td+'">'+esc(r.nid)+'</td>'+(pl.solo?'':'<td style="'+td+'">'+esc((r.m||[]).map(x=>x==='*'?'الفريق كامل':x).join(' + ')||'—')+'</td>')+'</tr>').join('')+'</table></div>';}).join('');}
+function planPDF(){const pl=PL;savePDF(planTable(pl),'جدول '+pl.school);}
+function planXlsxBytes(pl){const xe=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'');
+  const rows=[];const put=(r,cells)=>{rows.push('<row r="'+r+'">'+cells.map(([c,v])=>'<c r="'+c+r+'" t="inlineStr"><is><t xml:space="preserve">'+xe(v)+'</t></is></c>').join('')+'</row>')};
+  const d=new Date(pl.start+'T12:00:00'),ds=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  put(1,[['A','نموذج جدول الحصص لزيارة المدرسة']]);put(4,[['A','اسم المدرسة'],['C',pl.school],['H','المرحلة'],['I',STAGES[pl.stage]]]);put(5,[['A','الرقم الوزاري'],['E','إدارة التعليم'],['H','تاريخ أول يوم بالزيارة'],['I',ds]]);
+  const H=['م','اليوم','الحصة','النوع','المادة أو النشاط','الصف','الفصل','اسم المعلم','السجل المدني','ملاحظات','عضو الفريق'],C='ABCDEFGHIJK'.split('');put(7,H.map((h,i)=>[C[i],h]));
+  pl.rows.slice().sort((a,b)=>a.iso.localeCompare(b.iso)||perIdx(a.p)-perIdx(b.p)).forEach((r,i)=>{const day=fmtDate(r.iso).w,mem=(r.m||[]).map(x=>x==='*'?'الفريق كامل':x).join(' + ');
+    put(8+i,r.t==='a'?[['A',i+1],['B',day],['C',r.p],['D','نشاط'],['E',r.text],['K',mem]]:[['A',i+1],['B',day],['C',r.p],['D','حصة صفية'],['E',r.subject],['F',r.grade],['G',r.section],['H',r.teacher],['I',r.nid],['K',mem]]);});
+  const enc=s=>new TextEncoder().encode(s),X='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  return fflate.zipSync({'[Content_Types].xml':enc(X+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>'),
+    '_rels/.rels':enc(X+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'),
+    'xl/workbook.xml':enc(X+'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="جدول الحصص" sheetId="1" r:id="rId1"/></sheets></workbook>'),
+    'xl/_rels/workbook.xml.rels':enc(X+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'),
+    'xl/worksheets/sheet1.xml':enc(X+'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView rightToLeft="1" workbookViewId="0"/></sheetViews><sheetFormatPr defaultRowHeight="18"/><cols><col min="1" max="1" width="5" customWidth="1"/><col min="2" max="4" width="13" customWidth="1"/><col min="5" max="5" width="24" customWidth="1"/><col min="6" max="7" width="10" customWidth="1"/><col min="8" max="8" width="26" customWidth="1"/><col min="9" max="11" width="16" customWidth="1"/></cols><sheetData>'+rows.join('')+'</sheetData></worksheet>')});}
+function planXlsx(){const pl=PL;try{const b=new Blob([planXlsxBytes(pl)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),fn=safeFile('جدول '+pl.school)+'.xlsx',a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},8000);toast('انحفظ الملف «'+esc(fn)+'» في التنزيلات');}catch(e){toast('ما قدرت أجهّز الملف')}}
 </script></body></html>
