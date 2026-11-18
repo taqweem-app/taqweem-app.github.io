@@ -565,6 +565,8 @@ body:has(#instAsk) #gate .gcard,body:has(#instG) #gate .gcard{visibility:hidden}
 .othsub{display:block;font-size:14px;font-weight:500;color:var(--ink3);margin:2px 0 6px;line-height:1.5}.flab .othsub{font-size:12px;margin:2px 0 0}
 .flab.fcol{flex-direction:column;gap:2px}
 .oldgn{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line)}.oldgnh{font-weight:600;color:var(--ink3);font-size:14px;margin-bottom:6px}.oldgn p{margin:0 0 8px}
+.evgrp{font-size:13px;font-weight:700;color:var(--ink3);margin:6px 2px 0}
+.evadd,.fadd{gap:8px}
 </style></head>
 <body><div id="app"></div><div id="printRoot"></div>
 <noscript>فعّل JavaScript في المتصفح.</noscript>
@@ -1139,7 +1141,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='2.2 · 8 جمادى الآخرة 1448 هـ 11:40';
+const BUILD='2.3 · 8 جمادى الآخرة 1448 هـ 11:58';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -1331,7 +1333,7 @@ function itemHTML(c,ins,i){const it=c.items[i],r=ins.items[i]||{};
   if(it.note)h+='<p class="note">'+esc(it.note)+'</p>';
   if(it.q)h+='<details class="qs" open><summary>الأسئلة الموجهة ('+it.q.length+')</summary><ol>'+it.q.map(q=>'<li>'+esc(q)+'</li>').join('')+'</ol></details>';
   if(it.b==='pct')h+='<label class="f">النسبة المئوية<input class="inp" data-pct inputmode="decimal" value="'+esc(r.pct||'')+'" placeholder="مثال: 95" style="max-width:200px"></label>';
-  else h+='<div class="evs">'+it.ev.map((e,k)=>{const on=(r.ev||[]).includes(k);return '<button class="ev'+(on?' on':'')+'" data-ev="'+k+'"><span class="bx">'+IC.check+'</span><span>'+esc(e)+'</span></button>'}).join('')+addRowsFill(r)+'</div>'+(evOnSafe()?'<button class="btn evadd" data-evadd>'+IC.plus+'أضف شاهد</button>':'')+(showOther(r)?'<div class="more"><label class="f">شواهد أخرى<span class="othsub">لا تُحسب ضمن الدرجات</span><textarea class="inp" data-other rows="2" placeholder="اكتب أو استخدم القلم من الكيبورد">'+esc(r.other||'')+'</textarea></label></div>':'');
+  else h+='<div class="evs">'+it.ev.map((e,k)=>{const on=(r.ev||[]).includes(k);return '<button class="ev'+(on?' on':'')+'" data-ev="'+k+'"><span class="bx">'+IC.check+'</span><span>'+esc(e)+'</span></button>'}).join('')+addRowsFill(r)+'</div>'+(evOnSafe()?'<button class="btn evadd" data-evadd><span>إضافة شاهد آخر</span>'+IC.plus+'</button>':'')+(showOther(r)?'<div class="more"><label class="f">شواهد أخرى<span class="othsub">لا تُحسب ضمن الدرجات</span><textarea class="inp" data-other rows="2" placeholder="اكتب أو استخدم القلم من الكيبورد">'+esc(r.other||'')+'</textarea></label></div>':'');
   h+='<div class="scorebox" data-score>'+scoreInner(it,r)+'</div>';
   h+='<div class="more"><label class="f">ملاحظات على الفقرة<textarea class="inp" data-note rows="2">'+esc(r.note||'')+'</textarea></label><div class="inkrow"><button class="btn sm" data-pad="item">'+IC.pen+(r.ink?'تعديل الكتابة':'ملاحظة بالقلم')+'</button>'+(r.ink?'<img class="inkthumb" src="'+r.ink+'">':'')+'</div></div></section>';
   return h;}
@@ -1343,7 +1345,7 @@ function formItemHTML(c,ins,i,stat){const it=c.items[i],r=ins.items[i]||{},l=lev
   h+='<div class="frow fhead"><div class="flab">الفقرة</div><div class="ftxt">'+(i+1)+'. '+esc(it.t)+(it.note?'<div class="fnote">'+esc(it.note)+'</div>':'')+'</div><div class="fscw" data-score>'+(stat?statScores(it,r):formScores(it,r))+'</div></div>';
   if(it.q)h+='<div class="frow"><div class="flab">الأسئلة الموجهة</div><div class="fbody"><ul class="fq">'+it.q.map(q=>'<li>'+esc(q)+'</li>').join('')+'</ul></div></div>';
   if(it.b==='pct')h+='<div class="frow"><div class="flab">النسبة</div><div class="fbody">'+(stat?esc(r.pct||'—')+'%':'<input class="inp" data-pct inputmode="decimal" value="'+esc(r.pct||'')+'" style="max-width:180px" placeholder="مثال: 95">')+'</div></div>';
-  else h+='<div class="frow"><div class="flab">الشواهد الدالة</div><div class="fbody fev">'+it.ev.map((e,k)=>{const on=(r.ev||[]).includes(k);return stat?'<div class="fe'+(on?' on':'')+'"><span class="fb">'+(on?'☑':'☐')+'</span>'+esc(e)+'</div>':'<button class="fe'+(on?' on':'')+'" data-ev="'+k+'"><span class="fb">'+IC.check+'</span><span>'+esc(e)+'</span></button>'}).join('')+addRowsForm(r,stat)+(!stat&&evOnSafe()?'<button class="fe fadd" data-evadd>'+IC.plus+'<span>أضف شاهد</span></button>':'')+'</div></div>';
+  else h+='<div class="frow"><div class="flab">الشواهد الدالة</div><div class="fbody fev">'+it.ev.map((e,k)=>{const on=(r.ev||[]).includes(k);return stat?'<div class="fe'+(on?' on':'')+'"><span class="fb">'+(on?'☑':'☐')+'</span>'+esc(e)+'</div>':'<button class="fe'+(on?' on':'')+'" data-ev="'+k+'"><span class="fb">'+IC.check+'</span><span>'+esc(e)+'</span></button>'}).join('')+addRowsForm(r,stat)+(!stat&&evOnSafe()?'<button class="fe fadd" data-evadd><span>إضافة شاهد آخر</span>'+IC.plus+'</button>':'')+'</div></div>';
   if(it.b!=='pct'&&(stat?String(r.other||'').trim()||!evOnSafe():showOther(r)))h+='<div class="frow"><div class="flab fcol">شواهد أخرى'+(stat?'':'<span class="othsub">لا تُحسب ضمن الدرجات</span>')+'</div><div class="fbody">'+(stat?'<div class="fdots">'+esc(r.other||'')+'</div>':'<textarea class="fother" data-other rows="1" placeholder="…………………………………">'+esc(r.other||'')+'</textarea>')+'</div></div>';
   if(!stat)h+='<div class="frow"><div class="flab">ملاحظات على الفقرة</div><div class="fbody fnoterow"><textarea class="fother" data-note rows="1" placeholder="اختياري">'+esc(r.note||'')+'</textarea><button class="btn sm" data-pad="item">'+IC.pen+(r.ink?'تعديل':'بالقلم')+'</button>'+(r.ink?'<img class="inkthumb" src="'+r.ink+'">':'')+'</div></div>';
   else if((r.note||'').trim()||r.ink)h+='<div class="frow"><div class="flab">ملاحظات على الفقرة</div><div class="fbody">'+esc(r.note||'')+(r.ink?'<img class="inkthumb" src="'+r.ink+'">':'')+'</div></div>';
@@ -1392,18 +1394,23 @@ function addRowsForm(r,stat){const A=(r&&Array.isArray(r.add))?r.add:[];return A
   return stat?'<div class="fe on'+(x.ink?' fink':'')+'"><span class="fb">☑</span>'+body+'</div>':'<div class="fe on added'+(x.ink?' fink':'')+'" data-evedit="'+k+'" role="button"><span class="fb">'+IC.check+'</span>'+body+tag+'<button class="evx" data-evdel="'+k+'" aria-label="حذف الشاهد">'+IC.x+'</button></div>';}).join('');}
 /* اقتراحات كل موظف من شغله هو بس (زياراته في حسابه): اللي أضافه قبل لنفس المؤشر، واللي كتبه قديم في «شواهد أخرى» */
 function evSugs(cid,code,q,r){const seen={},hide=DB.settings.evHide||[],mine={};addList(r).forEach(x=>{if(x.t)mine[norm(x.t)]=1;});
-  const put=(t,w)=>{t=String(t||'').replace(/\s+/g,' ').trim();if(t.length<2||t.length>160)return;const k=norm(t);if(mine[k]||hide.indexOf(k)>=0)return;const o=seen[k]||(seen[k]={t,n:0,w:0});o.n++;if(w>o.w){o.w=w;o.t=t;}};
-  Object.values(DB.visits||{}).forEach(v=>((v.cards||{})[cid]||[]).forEach(ins=>Object.keys(ins.items||{}).forEach(i=>{const it=CARD[cid].items[i],x=ins.items[i];if(!it||!x||it.code!==code)return;addList(x).forEach(a=>{if(a.t&&!a.ink)put(a.t,2)});if(String(x.other||'').trim())String(x.other).split(/\n|؛|;/).forEach(s=>put(s,1));})));
+  const put=(t,w,same)=>{t=String(t||'').replace(/\s+/g,' ').trim();if(t.length<2||t.length>160)return;const k=norm(t);if(mine[k]||hide.indexOf(k)>=0)return;const o=seen[k]||(seen[k]={t,n:0,w:0,same:false});o.n++;if(same)o.same=true;if(w>o.w){o.w=w;o.t=t;}};
+  /* كل شواهده اللي أضافها قبل: اللي لنفس الفقرة أول، وبعدها اللي في فقرات وبطاقات ثانية */
+  Object.values(DB.visits||{}).forEach(v=>Object.keys(v.cards||{}).forEach(c=>{if(!CARD[c])return;(v.cards[c]||[]).forEach(ins=>Object.keys(ins.items||{}).forEach(i=>{const it=CARD[c].items[i],x=ins.items[i];if(!it||!x)return;const same=c===cid&&it.code===code;
+    addList(x).forEach(a=>{if(a.t&&!a.ink)put(a.t,2,same)});if(same&&String(x.other||'').trim())String(x.other).split(/\n|؛|;/).forEach(s=>put(s,1,true));}));}));
   let L=Object.values(seen);const qq=norm(q||'');if(qq)L=L.filter(o=>qq.split(' ').every(w=>norm(o.t).indexOf(w)>=0));
-  return L.sort((a,b)=>b.n-a.n||b.w-a.w||a.t.localeCompare(b.t,'ar')).slice(0,12).map(o=>o.t);}
+  L.sort((a,b)=>(b.same-a.same)||b.n-a.n||b.w-a.w||a.t.localeCompare(b.t,'ar'));
+  return L.slice(0,30).map(o=>({t:o.t,same:o.same}));}
 function evRe(v,ins,i){const r=ins.items[i],it=CARD[S.cid].items[i];if(r&&levelOf(it,r))delete r.skip;touch(v);const y=window.scrollY;render();window.scrollTo(0,y);}
 function evPush(v,ins,i,x){const r=rec(ins,i);(r.add||(r.add=[])).push(Object.assign({id:'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)},x));evRe(v,ins,i);}
 function evAddModal(v,ins,i,k){const it=CARD[S.cid].items[i],r=rec(ins,i),cur=k>=0&&r.add?r.add[k]:null;
   if(cur&&cur.ink){openPad(cur.ink,url=>{if(url){cur.ink=url;evRe(v,ins,i);}},{clear:true});return;}
-  const s=modal('<h3>'+(cur?'تعديل الشاهد':'أضف شاهد')+'</h3><p class="muted" style="margin:-4px 0 12px">المؤشر '+esc(it.code)+' · الشاهد المضاف يطلع في التقرير، وما يدخل في حساب الدرجة</p><textarea class="inp" id="evT" rows="2" placeholder="اكتب الشاهد…">'+esc(cur?cur.t:'')+'</textarea><div class="evsugh" id="evSh"></div><div class="evsug" id="evS"></div><div class="acts"><button class="btn primary" id="evOk">'+IC.check+(cur?'حفظ':'إضافة')+'</button>'+(cur?'':'<button class="btn" id="evPen">'+IC.pen+'اكتب بالقلم</button>')+'<button class="btn ghost" id="evNo">إلغاء</button></div>','evmodal');
+  const s=modal('<h3>'+(cur?'تعديل الشاهد':'إضافة شاهد آخر')+'</h3><p class="muted" style="margin:-4px 0 12px">المؤشر '+esc(it.code)+' · الشاهد المضاف يطلع في التقرير، وما يدخل في حساب الدرجة</p><textarea class="inp" id="evT" rows="2" placeholder="اكتب الشاهد…">'+esc(cur?cur.t:'')+'</textarea><div class="evsugh" id="evSh"></div><div class="evsug" id="evS"></div><div class="acts"><button class="btn primary" id="evOk">'+IC.check+(cur?'حفظ':'إضافة')+'</button>'+(cur?'':'<button class="btn" id="evPen">'+IC.pen+'اكتب بالقلم</button>')+'<button class="btn ghost" id="evNo">إلغاء</button></div>','evmodal');
   const T=$('#evT');
-  const draw=()=>{const L=evSugs(S.cid,it.code,T.value,r).filter(x=>!cur||norm(x)!==norm(cur.t));$('#evSh').textContent=L.length?(T.value.trim()?'من شواهدك اللي كتبتها قبل':'شواهدك اللي كتبتها قبل (اضغط وحدة تنضاف)'):(T.value.trim()?'':'الشواهد اللي تكتبها تنحفظ هنا، وتطلع لك تختار منها المرة الجاية');
-    $('#evS').innerHTML=L.map(x=>'<div class="evchip"><button class="evpick" data-t="'+esc(x)+'">'+esc(x)+'</button><button class="evhide" data-h="'+esc(x)+'" aria-label="شيلها من الاقتراحات">'+IC.x+'</button></div>').join('');
+  const draw=()=>{const L=evSugs(S.cid,it.code,T.value,r).filter(x=>!cur||norm(x.t)!==norm(cur.t));$('#evSh').textContent=L.length?(T.value.trim()?'من شواهدك اللي كتبتها قبل':'شواهدك اللي كتبتها قبل (اضغط وحدة تنضاف)'):(T.value.trim()?'':'الشواهد اللي تكتبها تنحفظ هنا، وتطلع لك تختار منها المرة الجاية');
+    const chip=x=>'<div class="evchip"><button class="evpick" data-t="'+esc(x.t)+'">'+esc(x.t)+'</button><button class="evhide" data-h="'+esc(x.t)+'" aria-label="شيلها من الاقتراحات">'+IC.x+'</button></div>';
+    const A=L.filter(x=>x.same),B=L.filter(x=>!x.same);
+    $('#evS').innerHTML=(A.length&&B.length?'<div class="evgrp">لهذي الفقرة</div>':'')+A.map(chip).join('')+(B.length?'<div class="evgrp">من فقرات ثانية</div>'+B.map(chip).join(''):'');
     s.querySelectorAll('.evpick').forEach(b=>b.onclick=()=>{const t=b.dataset.t;if(cur){T.value=t;T.focus();return;}closeModal();evPush(v,ins,i,{t});toast('انضاف الشاهد ✓');});
     s.querySelectorAll('.evhide').forEach(b=>b.onclick=()=>{const H=DB.settings.evHide||(DB.settings.evHide=[]),kk=norm(b.dataset.h);if(H.indexOf(kk)<0)H.push(kk);saveNow();draw();});};
   T.oninput=draw;draw();setTimeout(()=>{try{T.focus()}catch(e){}},60);
