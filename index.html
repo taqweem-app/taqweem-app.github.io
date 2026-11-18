@@ -1139,7 +1139,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='2 · 7 جمادى الآخرة 1448 هـ 17:37';
+const BUILD='2.1 · 8 جمادى الآخرة 1448 هـ 11:34';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -1313,11 +1313,16 @@ function vFill(){const v=DB.visits[S.vid],c=CARD[S.cid],ins=curIns();if(!ins){S=
   return h+'</div>';}
 /* ملاحظات عامة للزيارة: وحدة للزيارة كلها (v.gnote كتابة، v.gink قلم)، تطلع نفسها في كل البطاقات والحصص.
    الملاحظات العامة القديمة اللي انكتبت على بطاقة لحالها (ins.ink / ins.note) تبقى زي ما هي وتطلع تحتها */
-function insPadBlock(ins){const v=DB.visits[S.vid]||{},kb=true;
-  let h='<div class="panel"><div class="row"><h3 style="flex:1;margin:0">ملاحظات عامة للزيارة</h3><button class="btn sm" data-pad="visit">'+IC.pen+(v.gink?'تعديل الكتابة':kb?'بالقلم':'كتابة بالقلم')+'</button></div><p class="muted" style="margin:6px 0 0;font-size:14px">نفسها في كل البطاقات</p>'+
-    (kb?'<textarea class="inp" data-gnote rows="3" style="margin-top:12px" placeholder="اكتب ملاحظاتك العامة هنا">'+esc(v.gnote||'')+'</textarea>':'')+
-    (v.gink?'<img class="inkthumb" style="margin-top:12px;max-width:100%;height:auto;max-height:180px" src="'+v.gink+'">':'');
-  if(ins.ink||String(ins.note||'').trim())h+='<div class="oldgn"><div class="oldgnh">ملاحظات سابقة على هذي البطاقة</div>'+(String(ins.note||'').trim()?'<p>'+esc(ins.note).replace(/\n/g,'<br>')+'</p>':'')+(ins.ink?'<img class="inkthumb" style="max-width:100%;height:auto;max-height:180px" src="'+ins.ink+'">':'')+'</div>';
+/* ملاحظات عامة للحصة: لكل حصة (أو بطاقة) لحالها، كتابة (ins.note) وقلم (ins.ink).
+   اللي انكتب يوم ما كانت للزيارة كلها (v.gnote / v.gink) يبقى ويطلع تحتها لين يمسحه */
+/* كل بطاقة عنوانها: «ملاحظات عامة على الحصة» أو «ملاحظات عامة حول تحليل الوثائق»… وكل وحدة لحالها */
+function gnTitle(cid){if(cid==='cls')return 'ملاحظات عامة على الحصة';const c=CARD[cid];return 'ملاحظات عامة حول '+((c&&c.short)||'البطاقة');}
+function insPadBlock(ins){const v=DB.visits[S.vid]||{},T=gnTitle(S.cid);
+  let h='<div class="panel"><div class="row"><h3 style="flex:1;margin:0">'+T+'</h3><button class="btn sm" data-pad="ins">'+IC.pen+(ins.ink?'تعديل الكتابة':'بالقلم')+'</button></div>'+
+    '<textarea class="inp" data-insnote rows="3" style="margin-top:12px" placeholder="اكتب ملاحظاتك العامة هنا">'+esc(ins.note||'')+'</textarea>'+
+    (ins.ink?'<img class="inkthumb" style="margin-top:12px;max-width:100%;height:auto;max-height:180px" src="'+ins.ink+'">':'');
+  if(String(v.gnote||'').trim()||v.gink)h+='<div class="oldgn"><div class="row"><div class="oldgnh" style="flex:1">ملاحظات عامة للزيارة (انكتبت قبل)</div>'+(v.gink?'<button class="btn sm" data-pad="visit">'+IC.pen+'تعديل</button>':'')+'</div>'+
+    (String(v.gnote||'').trim()?'<textarea class="inp" data-gnote rows="2">'+esc(v.gnote)+'</textarea>':'')+(v.gink?'<img class="inkthumb" style="margin-top:8px;max-width:100%;height:auto;max-height:180px" src="'+v.gink+'">':'')+'</div>';
   return h+'</div>';}
 function itemHTML(c,ins,i){const it=c.items[i],r=ins.items[i]||{};
   let h='<section class="item" id="it'+i+'" data-i="'+i+'"><div class="ihead"><span class="inum">'+(i+1)+'</span><span class="icode">المؤشر <b>'+esc(it.code)+'</b></span>'+(r.skip&&!levelOf(it,r)?'<span class="pill warn skipflag">متخطاة</span>':'')+'</div><p class="itext">'+esc(it.t)+'</p>';
@@ -1480,12 +1485,12 @@ function paperHTML(v,cid,ins,idx){const c=CARD[cid],d=fmtDate(paperDate(v,cid,in
   else if(style==='table'){h+='<table class="sum"><thead><tr><th>م</th><th>المؤشر</th><th>الفقرة</th><th>الدرجة</th></tr></thead><tbody>'+c.items.map((it,i)=>{const r=ins.items[i],l=levelOf(it,r);cnt[l]++;return '<tr><td class="n">'+(i+1)+'</td><td class="code">'+esc(it.code)+'</td><td>'+esc(it.t)+ex(it,r)+'</td><td class="s">'+(l?l+' – '+LV[l]:'<span style="color:#B23A3A">لم تُرصد</span>')+'</td></tr>'}).join('')+'</tbody></table>';}
   else{h+=c.items.map((it,i)=>{const r=ins.items[i],l=levelOf(it,r);cnt[l]++;return '<div class="q"><div class="qt"><span>'+(i+1)+'.</span><span style="flex:1">'+esc(it.t)+'</span><span class="c">'+esc(it.code)+'</span></div><div class="opts">'+[1,2,3,4].map(k=>'<div class="opt'+(l===k?' sel':'')+'"><span class="o"></span>متحقق بدرجة '+LV[k]+'.</div>').join('')+'</div>'+(l?'':'<div class="unset">لم تُرصد الدرجة</div>')+ex(it,r)+'</div>'}).join('');}
   h+='<div class="stats">'+[4,3,2,1].map(k=>'<span>'+LV[k]+': <b>'+cnt[k]+'</b></span>').join('')+(cnt[0]?'<span style="color:#B23A3A">غير مرصودة: <b>'+cnt[0]+'</b></span>':'')+'</div>';
-  if(extra){const gn=String(v.gnote||'').trim();
+  if(extra){const T=gnTitle(cid),nt=String(ins.note||'').trim(),gn=String(v.gnote||'').trim();
+    if(nt)h+='<div class="gnote"><b>'+T+':</b> '+esc(ins.note).replace(/\n/g,'<br>')+'</div>';
+    if(ins.ink)h+=(nt?'':'<div style="margin-top:12px;font-weight:600">'+T+'</div>')+'<img class="inkfull" src="'+ins.ink+'">';
+    /* اللي انكتب يوم كانت للزيارة كلها */
     if(gn)h+='<div class="gnote"><b>ملاحظات عامة للزيارة:</b> '+esc(v.gnote).replace(/\n/g,'<br>')+'</div>';
-    if(v.gink)h+=(gn?'':'<div style="margin-top:12px;font-weight:600">ملاحظات عامة للزيارة</div>')+'<img class="inkfull" src="'+v.gink+'">';
-    /* القديمة اللي على البطاقة نفسها */
-    if(String(ins.note||'').trim())h+='<div class="gnote"><b>ملاحظات:</b> '+esc(ins.note).replace(/\n/g,'<br>')+'</div>';
-    if(ins.ink)h+='<div style="margin-top:12px;font-weight:600">ملاحظات بخط اليد</div><img class="inkfull" src="'+ins.ink+'">';}
+    if(v.gink)h+=(gn?'':'<div style="margin-top:12px;font-weight:600">ملاحظات عامة للزيارة</div>')+'<img class="inkfull" src="'+v.gink+'">';}
   h+='</div>';return h;}
 function vSum(){const v=DB.visits[S.vid],T=sumTargets(),st=DB.settings.sumStyle,sj=S.subj||[];
   const title=sj.length?'مختصر '+sj.join(' و'):S.all?'مختصر الزيارة كاملة':('مختصر '+CARD[S.cid].short);
