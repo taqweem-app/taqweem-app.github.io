@@ -1139,7 +1139,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='2.1 · 8 جمادى الآخرة 1448 هـ 11:34';
+const BUILD='2.2 · 8 جمادى الآخرة 1448 هـ 11:40';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -1313,17 +1313,19 @@ function vFill(){const v=DB.visits[S.vid],c=CARD[S.cid],ins=curIns();if(!ins){S=
   return h+'</div>';}
 /* ملاحظات عامة للزيارة: وحدة للزيارة كلها (v.gnote كتابة، v.gink قلم)، تطلع نفسها في كل البطاقات والحصص.
    الملاحظات العامة القديمة اللي انكتبت على بطاقة لحالها (ins.ink / ins.note) تبقى زي ما هي وتطلع تحتها */
-/* ملاحظات عامة للحصة: لكل حصة (أو بطاقة) لحالها، كتابة (ins.note) وقلم (ins.ink).
-   اللي انكتب يوم ما كانت للزيارة كلها (v.gnote / v.gink) يبقى ويطلع تحتها لين يمسحه */
+/* نوعين ملاحظات عامة:
+   - لكل حصة أو بطاقة لحالها (ins.note كتابة، ins.ink قلم)
+   - للزيارة كلها (v.gnote / v.gink)، تطلع دايم في كل البطاقات والحصص */
 /* كل بطاقة عنوانها: «ملاحظات عامة على الحصة» أو «ملاحظات عامة حول تحليل الوثائق»… وكل وحدة لحالها */
 function gnTitle(cid){if(cid==='cls')return 'ملاحظات عامة على الحصة';const c=CARD[cid];return 'ملاحظات عامة حول '+((c&&c.short)||'البطاقة');}
-function insPadBlock(ins){const v=DB.visits[S.vid]||{},T=gnTitle(S.cid);
+function insPadBlock(ins){const v=DB.visits[S.vid]||{},T=gnTitle(S.cid),img=x=>'<img class="inkthumb" style="margin-top:12px;max-width:100%;height:auto;max-height:180px" src="'+x+'">';
+  /* ١) ملاحظات هذي الحصة/البطاقة بس */
   let h='<div class="panel"><div class="row"><h3 style="flex:1;margin:0">'+T+'</h3><button class="btn sm" data-pad="ins">'+IC.pen+(ins.ink?'تعديل الكتابة':'بالقلم')+'</button></div>'+
-    '<textarea class="inp" data-insnote rows="3" style="margin-top:12px" placeholder="اكتب ملاحظاتك العامة هنا">'+esc(ins.note||'')+'</textarea>'+
-    (ins.ink?'<img class="inkthumb" style="margin-top:12px;max-width:100%;height:auto;max-height:180px" src="'+ins.ink+'">':'');
-  if(String(v.gnote||'').trim()||v.gink)h+='<div class="oldgn"><div class="row"><div class="oldgnh" style="flex:1">ملاحظات عامة للزيارة (انكتبت قبل)</div>'+(v.gink?'<button class="btn sm" data-pad="visit">'+IC.pen+'تعديل</button>':'')+'</div>'+
-    (String(v.gnote||'').trim()?'<textarea class="inp" data-gnote rows="2">'+esc(v.gnote)+'</textarea>':'')+(v.gink?'<img class="inkthumb" style="margin-top:8px;max-width:100%;height:auto;max-height:180px" src="'+v.gink+'">':'')+'</div>';
-  return h+'</div>';}
+    '<textarea class="inp" data-insnote rows="3" style="margin-top:12px" placeholder="اكتب ملاحظاتك هنا">'+esc(ins.note||'')+'</textarea>'+(ins.ink?img(ins.ink):'')+'</div>';
+  /* ٢) ملاحظات عامة للزيارة: وحدة للزيارة كلها، تطلع دايم في كل البطاقات والحصص */
+  h+='<div class="panel"><div class="row"><h3 style="flex:1;margin:0">ملاحظات عامة للزيارة</h3><button class="btn sm" data-pad="visit">'+IC.pen+(v.gink?'تعديل الكتابة':'بالقلم')+'</button></div><p class="muted" style="margin:6px 0 0;font-size:14px">تطلع نفسها في كل البطاقات والحصص</p>'+
+    '<textarea class="inp" data-gnote rows="3" style="margin-top:12px" placeholder="اكتب ملاحظاتك العامة على الزيارة">'+esc(v.gnote||'')+'</textarea>'+(v.gink?img(v.gink):'')+'</div>';
+  return h;}
 function itemHTML(c,ins,i){const it=c.items[i],r=ins.items[i]||{};
   let h='<section class="item" id="it'+i+'" data-i="'+i+'"><div class="ihead"><span class="inum">'+(i+1)+'</span><span class="icode">المؤشر <b>'+esc(it.code)+'</b></span>'+(r.skip&&!levelOf(it,r)?'<span class="pill warn skipflag">متخطاة</span>':'')+'</div><p class="itext">'+esc(it.t)+'</p>';
   if(it.note)h+='<p class="note">'+esc(it.note)+'</p>';
