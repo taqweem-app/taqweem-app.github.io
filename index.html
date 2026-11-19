@@ -567,6 +567,47 @@ body:has(#instAsk) #gate .gcard,body:has(#instG) #gate .gcard{visibility:hidden}
 .oldgn{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line)}.oldgnh{font-weight:600;color:var(--ink3);font-size:14px;margin-bottom:6px}.oldgn p{margin:0 0 8px}
 .evgrp{font-size:13px;font-weight:700;color:var(--ink3);margin:6px 2px 0}
 .evadd,.fadd{gap:8px}
+
+/* نافذة إضافة شاهد: رأس أخضر بزخرفة الشبكة الذهبية، وتحته ورقة هادئة */
+.modal.evm3{padding:0;border-top:0;overflow:auto;background:var(--card)}
+.evm3 .evband{position:relative;background:var(--folio) var(--lattice);background-size:72px;color:var(--folioInk);padding:22px 22px 20px;border-bottom:3px solid var(--gold)}
+.evm3 .evband::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,58,46,.55),rgba(11,58,46,.92));pointer-events:none}
+.evm3 .evband>*{position:relative}
+.evm3 .evcode{font-size:14px;color:var(--gold);letter-spacing:.2px}
+.evm3 .evcode b{font-family:var(--serif);font-size:18px;font-weight:700;margin-inline-start:4px}
+.evm3 .evband h3{margin:4px 0 6px;color:#fff;font-family:var(--serif);font-size:30px;line-height:1.3}
+.evm3 .evband p{margin:0;font-size:14.5px;color:var(--folioMute);line-height:1.6}
+.evm3 .evbody{padding:18px 20px 4px}
+.evm3 .evbox{display:flex;gap:10px;align-items:stretch;border:1px solid var(--line2);border-bottom:2px solid var(--gold);border-radius:14px 14px 6px 6px;background:var(--paper);padding:6px}
+.evm3 .evbox:focus-within{background:var(--card);box-shadow:0 0 0 3px var(--goldSoft)}
+.evm3 .evbox textarea{flex:1;border:0;background:transparent;resize:none;font:inherit;font-size:18px;line-height:1.7;padding:8px 10px;color:var(--ink);outline:none;min-height:60px}
+.evm3 .evpenb{flex:none;width:66px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--brand);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px;font-weight:600}
+.evm3 .evpenb svg{width:22px;height:22px}
+.evm3 .evsugtop{display:flex;align-items:baseline;justify-content:space-between;margin:22px 0 2px}
+.evm3 .evsugtop>span{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--ink)}
+.evm3 .evedit{border:0;background:none;color:var(--goldDeep);font-size:14px;font-weight:600;padding:6px 0}
+.evm3 .evedhint{margin:4px 0 0;font-size:13.5px;color:var(--bad)}
+.evm3 .evsec{margin-top:14px}
+.evm3 .evsec h4{display:flex;align-items:center;gap:10px;margin:0 0 4px;font-size:13.5px;font-weight:600;color:var(--goldDeep)}
+.evm3 .evsec h4::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.evm3 .evlist{display:flex;flex-direction:column}
+.evm3 .evrow{display:flex;align-items:center;gap:12px;width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:14px 2px;text-align:right;color:var(--ink);font-size:17px;line-height:1.5}
+.evm3 .evrow:last-child{border-bottom:0}
+.evm3 .evrow:active{background:var(--brandSoft)}
+.evm3 .evdia{flex:none;width:8px;height:8px;background:var(--gold);transform:rotate(45deg);border-radius:1px}
+.evm3 .evtx{flex:1}
+.evm3 .evact{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--brand);color:#fff}
+.evm3 .evact svg{width:17px;height:17px}
+.evm3 .evrow.ed .evact{background:var(--badSoft);color:var(--bad)}
+.evm3 .evrow.ed .evtx{color:var(--ink2)}
+.evm3 .evempty{display:flex;gap:12px;align-items:flex-start;margin-top:20px;padding:16px;border:1px dashed var(--line2);border-radius:14px}
+.evm3 .evempty .evdia{margin-top:9px}
+.evm3 .evempty p{margin:0;color:var(--ink2);font-size:15px;line-height:1.8}
+.evm3 .evfoot{position:sticky;bottom:0;display:flex;gap:10px;background:var(--card);padding:14px 20px 20px;margin-top:14px;box-shadow:0 -10px 20px -14px rgba(11,58,46,.35)}
+.evm3 .evok{flex:1;justify-content:center;font-size:18px;padding:15px;border-bottom:2px solid var(--gold)}
+.evm3 .evok.dim{opacity:.5}
+.evm3 #evNo{flex:none;padding:15px 18px}
+.evm3 .evone{margin-top:8px;border-top:1px solid var(--line)}
 </style></head>
 <body><div id="app"></div><div id="printRoot"></div>
 <noscript>فعّل JavaScript في المتصفح.</noscript>
@@ -1141,7 +1182,7 @@ function addInst(){const v=DB.visits[S.vid],L=instances(v,S.cid),x=newInstance(S
 
 
 /* ---------- today: the school of the day, its classes in order, and what is left ---------- */
-const BUILD='2.3 · 8 جمادى الآخرة 1448 هـ 11:58';
+const BUILD='2.4 · 9 جمادى الآخرة 1448 هـ 15:33';
 /* old: العنوان القديم (التطبيق مشفّر في app.enc) · new: العنوان الجديد (التطبيق صفحة عادية index.html) */
 const APP_TARGET='new',APP_FILE=APP_TARGET==='new'?'index.html':'app.enc';
 async function fetchNewApp(){/* returns the fresh app file if it differs from the one this device is using, else null */
@@ -1398,24 +1439,38 @@ function evSugs(cid,code,q,r){const seen={},hide=DB.settings.evHide||[],mine={};
   /* كل شواهده اللي أضافها قبل: اللي لنفس الفقرة أول، وبعدها اللي في فقرات وبطاقات ثانية */
   Object.values(DB.visits||{}).forEach(v=>Object.keys(v.cards||{}).forEach(c=>{if(!CARD[c])return;(v.cards[c]||[]).forEach(ins=>Object.keys(ins.items||{}).forEach(i=>{const it=CARD[c].items[i],x=ins.items[i];if(!it||!x)return;const same=c===cid&&it.code===code;
     addList(x).forEach(a=>{if(a.t&&!a.ink)put(a.t,2,same)});if(same&&String(x.other||'').trim())String(x.other).split(/\n|؛|;/).forEach(s=>put(s,1,true));}));}));
-  let L=Object.values(seen);const qq=norm(q||'');if(qq)L=L.filter(o=>qq.split(' ').every(w=>norm(o.t).indexOf(w)>=0));
+  /* الفرز وهو يكتب: كل كلمة يكتبها لازم تكون موجودة، و«ال» في أولها ما تفرق (التعلم تجيب تعلم) */
+  let L=Object.values(seen);const qq=norm(q||'');if(qq){const W=qq.split(' ').filter(Boolean).map(w=>w.length>4?w.replace(/^(وال|بال|فال|كال|لل|ال)/,''):w);L=L.filter(o=>{const tx=norm(o.t);return W.every(w=>tx.indexOf(w)>=0);});}
   L.sort((a,b)=>(b.same-a.same)||b.n-a.n||b.w-a.w||a.t.localeCompare(b.t,'ar'));
   return L.slice(0,30).map(o=>({t:o.t,same:o.same}));}
 function evRe(v,ins,i){const r=ins.items[i],it=CARD[S.cid].items[i];if(r&&levelOf(it,r))delete r.skip;touch(v);const y=window.scrollY;render();window.scrollTo(0,y);}
 function evPush(v,ins,i,x){const r=rec(ins,i);(r.add||(r.add=[])).push(Object.assign({id:'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)},x));evRe(v,ins,i);}
+/* نافذة «إضافة شاهد آخر»: خانة كتابة وجنبها القلم، وتحتها مقترحات من شواهده هو كبطاقات صغيرة تنضاف بضغطة.
+   «ترتيب المقترحات» يطلّع علامة الحذف عشان يشيل اللي ما يبيه، بدون ما تزحم الشاشة */
 function evAddModal(v,ins,i,k){const it=CARD[S.cid].items[i],r=rec(ins,i),cur=k>=0&&r.add?r.add[k]:null;
   if(cur&&cur.ink){openPad(cur.ink,url=>{if(url){cur.ink=url;evRe(v,ins,i);}},{clear:true});return;}
-  const s=modal('<h3>'+(cur?'تعديل الشاهد':'إضافة شاهد آخر')+'</h3><p class="muted" style="margin:-4px 0 12px">المؤشر '+esc(it.code)+' · الشاهد المضاف يطلع في التقرير، وما يدخل في حساب الدرجة</p><textarea class="inp" id="evT" rows="2" placeholder="اكتب الشاهد…">'+esc(cur?cur.t:'')+'</textarea><div class="evsugh" id="evSh"></div><div class="evsug" id="evS"></div><div class="acts"><button class="btn primary" id="evOk">'+IC.check+(cur?'حفظ':'إضافة')+'</button>'+(cur?'':'<button class="btn" id="evPen">'+IC.pen+'اكتب بالقلم</button>')+'<button class="btn ghost" id="evNo">إلغاء</button></div>','evmodal');
+  let edit=false;
+  const s=modal('<header class="evband"><div class="evcode">مؤشر <b>'+esc(it.code)+'</b></div><h3>'+(cur?'تعديل الشاهد':'إضافة شاهد آخر')+'</h3>'+
+      '<p>يُكتب في التقرير مع الشواهد، ولا يُحسب ضمن الدرجة</p></header>'+
+    '<div class="evbody"><div class="evbox"><textarea id="evT" rows="2" placeholder="اكتب الشاهد هنا">'+esc(cur?cur.t:'')+'</textarea>'+(cur?'':'<button class="evpenb" id="evPen">'+IC.pen+'<span>بالقلم</span></button>')+'</div>'+
+    '<div id="evS"></div></div>'+
+    '<div class="evfoot"><button class="btn primary evok" id="evOk">'+(cur?'حفظ التعديل':'إضافة الشاهد')+'</button><button class="btn ghost" id="evNo">إلغاء</button></div>','evmodal evm3');
   const T=$('#evT');
-  const draw=()=>{const L=evSugs(S.cid,it.code,T.value,r).filter(x=>!cur||norm(x.t)!==norm(cur.t));$('#evSh').textContent=L.length?(T.value.trim()?'من شواهدك اللي كتبتها قبل':'شواهدك اللي كتبتها قبل (اضغط وحدة تنضاف)'):(T.value.trim()?'':'الشواهد اللي تكتبها تنحفظ هنا، وتطلع لك تختار منها المرة الجاية');
-    const chip=x=>'<div class="evchip"><button class="evpick" data-t="'+esc(x.t)+'">'+esc(x.t)+'</button><button class="evhide" data-h="'+esc(x.t)+'" aria-label="شيلها من الاقتراحات">'+IC.x+'</button></div>';
-    const A=L.filter(x=>x.same),B=L.filter(x=>!x.same);
-    $('#evS').innerHTML=(A.length&&B.length?'<div class="evgrp">لهذي الفقرة</div>':'')+A.map(chip).join('')+(B.length?'<div class="evgrp">من فقرات ثانية</div>'+B.map(chip).join(''):'');
-    s.querySelectorAll('.evpick').forEach(b=>b.onclick=()=>{const t=b.dataset.t;if(cur){T.value=t;T.focus();return;}closeModal();evPush(v,ins,i,{t});toast('انضاف الشاهد ✓');});
-    s.querySelectorAll('.evhide').forEach(b=>b.onclick=()=>{const H=DB.settings.evHide||(DB.settings.evHide=[]),kk=norm(b.dataset.h);if(H.indexOf(kk)<0)H.push(kk);saveNow();draw();});};
-  T.oninput=draw;draw();setTimeout(()=>{try{T.focus()}catch(e){}},60);
+  const draw=()=>{/* قائمة وحدة بدون تقسيم: شواهد نفس الفقرة أول، وبعدها الباقي */const q=T.value.trim(),L=evSugs(S.cid,it.code,T.value,r).filter(x=>!cur||norm(x.t)!==norm(cur.t)).slice(0,15);
+    $('#evOk').classList.toggle('dim',!q);
+    const row=x=>'<button class="evrow'+(edit?' ed':'')+'" data-t="'+esc(x.t)+'"><i class="evdia"></i><span class="evtx">'+esc(x.t)+'</span><span class="evact">'+(edit?IC.x:IC.plus)+'</span></button>';
+    let h='';
+    if(!L.length)h=q?'':'<div class="evempty"><i class="evdia"></i><p>أول شاهد تكتبه ينحفظ في قائمتك، ويطلع لك هنا تختاره بضغطة في المرات الجاية.</p></div>';
+    else h='<div class="evsugtop"><span>'+(q?'من شواهدك القريبة من كلامك':'أو اختر من شواهدك')+'</span><button class="evedit" id="evEd">'+(edit?'تم':'ترتيب القائمة')+'</button></div>'+
+      (edit?'<p class="evedhint">اضغط على الشاهد اللي تبي تشيله من القائمة</p>':'')+'<div class="evlist evone">'+L.map(row).join('')+'</div>';
+    $('#evS').innerHTML=h;
+    const ed=$('#evEd');if(ed)ed.onclick=()=>{edit=!edit;draw();};
+    s.querySelectorAll('.evrow').forEach(b=>b.onclick=()=>{const t=b.dataset.t;
+      if(edit){const H=DB.settings.evHide||(DB.settings.evHide=[]),kk=norm(t);if(H.indexOf(kk)<0)H.push(kk);saveNow();draw();return;}
+      if(cur){T.value=t;draw();return;}closeModal();evPush(v,ins,i,{t});toast('انضاف الشاهد');});};
+  T.oninput=draw;draw();
   $('#evNo').onclick=()=>closeModal();
-  $('#evOk').onclick=()=>{const t=T.value.replace(/\s+/g,' ').trim();if(!t){T.focus();toast('اكتب الشاهد أول');return;}closeModal();if(cur){cur.t=t;evRe(v,ins,i);}else evPush(v,ins,i,{t});};
+  $('#evOk').onclick=()=>{const t=T.value.replace(/\s+/g,' ').trim();if(!t){T.focus();toast('اكتب الشاهد أو اختره من القائمة');return;}closeModal();if(cur){cur.t=t;evRe(v,ins,i);}else evPush(v,ins,i,{t});};
   const pb=$('#evPen');if(pb)pb.onclick=()=>openPad('',url=>{if(url)evPush(v,ins,i,{ink:url});},{clear:true});}
 function evDel(v,ins,i,k){const r=rec(ins,i),x=r.add&&r.add[k];if(!x)return;
   confirmDel('تحذف الشاهد؟',(x.ink?'الشاهد المكتوب بالقلم':'«'+esc(x.t)+'»')+' ينشال من البطاقة والتقرير.','حذف',()=>{r.add.splice(k,1);if(!r.add.length)delete r.add;evRe(v,ins,i);});}
